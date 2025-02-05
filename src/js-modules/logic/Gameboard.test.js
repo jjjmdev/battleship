@@ -5,6 +5,9 @@ describe("Gameboard class", () => {
 	const nRows = 10
 	const gameboard = new Gameboard(nCols, nRows)
 
+	const shipName1 = "My first ship"
+	const shipLen1 = 4
+
 	const sampleCoordsArrIn = [
 		[0, 0],
 		[3, 6],
@@ -53,5 +56,10 @@ describe("Gameboard class", () => {
 
 	it("has a fleet property that can be used to retrieve current ships", () => {
 		expect(gameboard.fleet).toEqual([])
+	})
+
+	it("can add a ship to the fleet", () => {
+		gameboard.addShip(shipName1, shipLen1)
+		expect(gameboard.fleet).toEqual([shipName1])
 	})
 })
