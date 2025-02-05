@@ -9,12 +9,24 @@ describe("Gameboard class", () => {
 	const shipLen1 = 4
 	const shipName2 = "My second ship"
 
-	const sampleCoordsArrIn = [
+	const sampleShipCoordsArrIn = [
+		[[1, 3], "N"],
+		[[1, 3], "E"],
+		[[1, 3], "S"],
+	]
+
+	const sampleShipCoordsArrOut = [
+		[[1, 3], "W"],
+		[[-1, 0], "E"],
+		[[-1, 0], "W"],
+	]
+
+	const sampleCellCoordsArrIn = [
 		[0, 0],
 		[3, 6],
 		[nCols - 1, nRows - 1],
 	]
-	const sampleCoordsArrOut = [
+	const sampleCellCoordsArrOut = [
 		[nCols, nRows],
 		[nCols, 0],
 		[0, nRows],
@@ -32,23 +44,23 @@ describe("Gameboard class", () => {
 	})
 
 	it("is composed by cells that can be retrieved", () => {
-		sampleCoordsArrIn.forEach((sampleCoords) =>
+		sampleCellCoordsArrIn.forEach((sampleCoords) =>
 			expect(gameboard.getCell(sampleCoords).coords).toEqual(sampleCoords)
 		)
 	})
 
 	it("can say if a cell is valid or out-of-bound", () => {
-		sampleCoordsArrIn.forEach((sampleCoords) =>
+		sampleCellCoordsArrIn.forEach((sampleCoords) =>
 			expect(gameboard.isValidCell(sampleCoords)).toBeTruthy()
 		)
 
-		sampleCoordsArrOut.forEach((sampleCoords) =>
+		sampleCellCoordsArrOut.forEach((sampleCoords) =>
 			expect(gameboard.isValidCell(sampleCoords)).toBeFalsy()
 		)
 	})
 
 	it("throws an error if you try to retrieve an out-of-bound cell", () => {
-		sampleCoordsArrOut.forEach((sampleCoords) =>
+		sampleCellCoordsArrOut.forEach((sampleCoords) =>
 			expect(() => gameboard.getCell(sampleCoords)).toThrow(
 				"The cell is out-of-bound"
 			)
@@ -73,5 +85,11 @@ describe("Gameboard class", () => {
 	it("can check if a ship is already in the fleet", () => {
 		expect(gameboard.hasShip(shipName1)).toBeTruthy()
 		expect(gameboard.hasShip(shipName2)).toBeFalsy()
+	})
+
+	it("can check if a ship can be placed / is fully contained in the board", () => {
+		sampleShipCoordsArrIn.forEach((sampleCoords) =>
+			expect(gameboard.canPlaceShip(shipName1, ...sampleCoords)).toBeTruthy()
+		)
 	})
 })
