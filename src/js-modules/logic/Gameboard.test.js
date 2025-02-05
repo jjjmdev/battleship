@@ -7,6 +7,7 @@ describe("Gameboard class", () => {
 
 	const shipName1 = "My first ship"
 	const shipLen1 = 4
+	const shipName2 = "My second ship"
 
 	const sampleCoordsArrIn = [
 		[0, 0],
@@ -67,5 +68,10 @@ describe("Gameboard class", () => {
 		expect(() => gameboard.addShip(shipName1, shipLen1)).toThrow(
 			"The ship is already in the fleet"
 		)
+	})
+
+	it("can check if a ship is already in the fleet", () => {
+		expect(gameboard.hasShip(shipName1)).toBeTruthy()
+		expect(gameboard.hasShip(shipName2)).toBeFalsy()
 	})
 })
