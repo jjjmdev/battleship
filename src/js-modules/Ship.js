@@ -16,6 +16,10 @@ export default class Ship {
 	}
 
 	hit() {
+		if (this.isSunk()) {
+			throw new Error("The ship is already sunk")
+		}
+
 		this.#hits += 1
 	}
 
