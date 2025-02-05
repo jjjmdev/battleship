@@ -1,0 +1,31 @@
+{
+	"name": "battleship",
+	"version": "1.0.0",
+	"main": "webpack.config.js",
+	"scripts": {
+		"test": "jest",
+		"testwatch": "jest --watch *.js",
+		"start": "webpack serve --open --config webpack.dev.js",
+		"watch": "webpack --watch --config webpack.dev.js",
+		"build": "webpack --config webpack.prod.js",
+		"gh-deploy": "git push origin :gh-pages && git subtree push --prefix dist origin gh-pages",
+		"gh-deploy-init": "git push origin && git subtree push --prefix dist origin gh-pages"
+	},
+	"keywords": [],
+	"author": "",
+	"license": "ISC",
+	"description": "",
+	"devDependencies": {
+		"@babel/cli": "^7.26.4",
+		"@babel/core": "^7.26.7",
+		"@babel/preset-env": "^7.26.7",
+		"babel-jest": "^29.7.0",
+		"css-loader": "^7.1.2",
+		"html-webpack-plugin": "^5.6.3",
+		"jest": "^29.7.0",
+		"style-loader": "^4.0.0",
+		"webpack": "^5.97.1",
+		"webpack-cli": "^6.0.1",
+		"webpack-dev-server": "^5.2.0"
+	}
+}
