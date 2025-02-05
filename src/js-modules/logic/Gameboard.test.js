@@ -121,4 +121,10 @@ describe("Gameboard class", () => {
 			}
 		}
 	})
+
+	it("can check if a Ship can be placed / is not overlapped with other ships", () => {
+		gameboard.addShip(shipName2, shipLen2)
+		const sampleCoordsIn = sampleShipCoordsArrIn[1]
+		expect(gameboard.canPlaceShip(shipName2, ...sampleCoordsIn)).toBeFalsy()
+	})
 })
