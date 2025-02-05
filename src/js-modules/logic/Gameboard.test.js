@@ -8,6 +8,7 @@ describe("Gameboard class", () => {
 	const shipName1 = "My first ship"
 	const shipLen1 = 4
 	const shipName2 = "My second ship"
+	const shipLen2 = 3
 
 	const sampleShipCoordsArrIn = [
 		[[1, 3], "N"],
@@ -91,5 +92,33 @@ describe("Gameboard class", () => {
 		sampleShipCoordsArrIn.forEach((sampleCoords) =>
 			expect(gameboard.canPlaceShip(shipName1, ...sampleCoords)).toBeTruthy()
 		)
+	})
+
+	it("can place a Ship in the board", () => {
+		const sampleCoordsIn = sampleShipCoordsArrIn[0]
+		const calculatedShipCells = [
+			[1, 3],
+			[1, 2],
+			[1, 1],
+			[1, 0],
+		]
+
+		gameboard.placeShip(shipName1, ...sampleCoordsIn)
+
+		// Check ALL cells: Only the ones occupied by the ship should be occupied by a ship
+		for (let c = 0; c < nCols; c++) {
+			for (let r = 0; r < nRows; r++) {
+				const cell = gameboard.getCell([c, r])
+				if (
+					calculatedShipCells.some(
+						(coords) => coords[0] === c && coords[1] === r
+					)
+				) {
+					expect(cell.hasShip()).toBeTruthy()
+				} else {
+					expect(cell.hasShip()).toBeFalsy()
+				}
+			}
+		}
 	})
 })
