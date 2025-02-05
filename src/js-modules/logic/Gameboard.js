@@ -74,21 +74,47 @@ export default class Gameboard {
 
 		// Compute the end
 		const [cDisp, rDisp] = directionDisplacement[direction]
-		const [cEnd, rEnd] = [
-			cStart + cDisp * (ship.length - 1),
-			rStart + rDisp * (ship.length - 1),
-		]
-
-		console.log(cStart, rStart, cEnd, rEnd)
 
 		// If the start or end is not in board, return false
 		if (
 			!this.isValidCell([cStart, rStart]) ||
-			!this.isValidCell([cEnd, rEnd])
+			!this.isValidCell([
+				cStart + cDisp * (ship.length - 1),
+				rStart + rDisp * (ship.length - 1),
+			])
 		) {
 			return false
 		}
 
+		// Traverse through the cells to check if there is a ship
+		let [cCurrent, rCurrent] = [cStart, rStart]
+		let counter = 0
+		while (counter < ship.length) {
+			if (this.#cells[cCurrent][rCurrent].hasShip()) return false
+
+			cCurrent += cDisp
+			rCurrent += rDisp
+			counter += 1
+		}
+
 		return true
+	}
+
+	placeShip(name, [cStart, rStart], direction) {
+		if (!this.canPlaceShip(name, [cStart, rStart], direction)) return false
+
+		const ship = this.#fleet.get(name)
+		const [cDisp, rDisp] = directionDisplacement[direction]
+
+		let [cCurrent, rCurrent] = [cStart, rStart]
+		let counter = 0
+		while (counter < ship.length) {
+			this.#cells[cCurrent][rCurrent].placeShip(ship)
+
+			cCurrent += cDisp
+			rCurrent += rDisp
+
+			counter += 1
+		}
 	}
 }
