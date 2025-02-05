@@ -50,4 +50,8 @@ describe("Gameboard class", () => {
 			)
 		)
 	})
+
+	it("has a fleet property that can be used to retrieve current ships", () => {
+		expect(gameboard.fleet).toEqual([])
+	})
 })
