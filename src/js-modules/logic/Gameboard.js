@@ -50,7 +50,7 @@ export default class Gameboard {
 	}
 
 	addShip(name, length) {
-		if (this.#fleet.has(name)) {
+		if (this.hasShip(name)) {
 			throw new Error("The ship is already in the fleet")
 		}
 
