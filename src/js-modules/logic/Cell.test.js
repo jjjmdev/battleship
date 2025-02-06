@@ -39,4 +39,8 @@ describe("Cell class", () => {
 		expect(cellMiss.receiveAttack()).toBeFalsy()
 		expect(cellHit.receiveAttack()).toBeTruthy()
 	})
+
+	it("increases the hits of the ship in it when it receives a hit attack", () => {
+		expect(cellHit.getShip().hits).toBe(1)
+	})
 })
