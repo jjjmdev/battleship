@@ -12,7 +12,8 @@ export default class Gameboard {
 	#nCols
 	#nRows
 	#cells
-	#fleet
+	#deployedFleet
+	#notDeployedFleet
 
 	constructor(nCols, nRows = nCols) {
 		this.#nCols = nCols
@@ -27,7 +28,8 @@ export default class Gameboard {
 			}
 		}
 
-		this.#fleet = new Map()
+		this.#deployedFleet = new Map()
+		this.#notDeployedFleet = new Map()
 	}
 
 	get size() {
@@ -42,8 +44,17 @@ export default class Gameboard {
 		return this.#nRows
 	}
 
+	get deployedFleet() {
+		return [...this.#deployedFleet.keys()]
+	}
+
+	get notDeployedFleet() {
+		return [...this.#notDeployedFleet.keys()]
+	}
+
 	get fleet() {
-		return [...this.#fleet.keys()]
+		// Returns keys (names)
+		return [...this.deployedFleet, ...this.notDeployedFleet]
 	}
 
 	getCell([c, r]) {
@@ -62,15 +73,15 @@ export default class Gameboard {
 		}
 
 		const ship = new Ship(length)
-		this.#fleet.set(name, ship)
+		this.#notDeployedFleet.set(name, ship)
 	}
 
 	hasShip(name) {
-		return this.#fleet.has(name)
+		return this.#notDeployedFleet.has(name) || this.#deployedFleet.has(name)
 	}
 
 	canPlaceShip(name, [cStart, rStart], direction) {
-		const ship = this.#fleet.get(name)
+		const ship = this.#notDeployedFleet.get(name)
 
 		// Compute the end
 		const [cDisp, rDisp] = directionDisplacement[direction]
@@ -104,7 +115,7 @@ export default class Gameboard {
 		if (!this.canPlaceShip(name, [cStart, rStart], direction))
 			throw new Error("The ship cannot be placed in this position")
 
-		const ship = this.#fleet.get(name)
+		const ship = this.#notDeployedFleet.get(name)
 		const [cDisp, rDisp] = directionDisplacement[direction]
 
 		let [cCurrent, rCurrent] = [cStart, rStart]
@@ -117,5 +128,8 @@ export default class Gameboard {
 
 			counter += 1
 		}
+
+		this.#notDeployedFleet.delete(name)
+		this.#deployedFleet.set(name, ship)
 	}
 }
