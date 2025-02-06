@@ -210,5 +210,14 @@ describe("Gameboard class", () => {
 			expect(gameboard.hasSunkShip(shipName1)).toBeTruthy()
 			expect(gameboard.hasSunkShip(shipName2)).toBeFalsy()
 		})
+
+		it("removes a ship from the deployed fleet when it sinks", () => {
+			expect(gameboard.hasDeployedShip(shipName1)).toBeFalsy()
+			// the following must still be true
+			expect(gameboard.hasShip(shipName1)).toBeTruthy()
+			console.log(gameboard.fleet)
+
+			expect(gameboard.fleet.sort()).toEqual([shipName1, shipName2].sort())
+		})
 	})
 })
