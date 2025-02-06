@@ -223,5 +223,9 @@ describe("Gameboard class", () => {
 			// ship 2 is not deployed, ship 1 is sunk
 			expect(gameboard.hasDeployedShips()).toBeFalsy()
 		})
+
+		it("checks if there are not deployed ships", () => {
+			expect(gameboard.hasNotDeployedShips()).toBeTruthy()
+		})
 	})
 })
