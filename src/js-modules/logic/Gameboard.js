@@ -14,6 +14,7 @@ export default class Gameboard {
 	#cells
 	#deployedFleet
 	#notDeployedFleet
+	#sunkFleet
 
 	constructor(nCols, nRows = nCols) {
 		this.#nCols = nCols
@@ -30,6 +31,7 @@ export default class Gameboard {
 
 		this.#deployedFleet = new Map()
 		this.#notDeployedFleet = new Map()
+		this.#sunkFleet = new Map()
 	}
 
 	get size() {
@@ -52,15 +54,17 @@ export default class Gameboard {
 		return [...this.#notDeployedFleet.keys()]
 	}
 
+	get sunkFleet() {
+		return [...this.#sunkFleet.keys()]
+	}
+
 	get fleet() {
 		// Returns keys (names)
 		return [...this.deployedFleet, ...this.notDeployedFleet]
 	}
 
 	get sunkFleet() {
-		return Array.from(this.#deployedFleet.entries())
-			.filter(([name, ship]) => ship.isSunk())
-			.map(([name]) => name)
+		return [...this.#sunkFleet.keys()]
 	}
 
 	hasDeployedShip(name) {
@@ -152,6 +156,28 @@ export default class Gameboard {
 	}
 
 	receiveAttack([c, r]) {
-		return this.getCell([c, r]).receiveAttack()
+		const cell = this.getCell([c, r])
+		const isHit = cell.receiveAttack()
+		const ship = cell.getShip()
+		if (isHit && ship !== null && ship.isSunk()) {
+			// get the name of the ship
+			const name = getMapKey(this.#deployedFleet, ship)
+			this.#sunkFleet.set(name, ship)
+			this.#deployedFleet.delete(name)
+		}
+
+		return isHit
 	}
+
+	hasSunkShip(name) {
+		return this.#sunkFleet.has(name)
+	}
+}
+
+function getMapKey(map, val) {
+	for (let [key, value] of map.entries()) {
+		if (value === val) return key
+	}
+
+	return null
 }
