@@ -60,7 +60,7 @@ export default class Gameboard {
 
 	get fleet() {
 		// Returns keys (names)
-		return [...this.deployedFleet, ...this.notDeployedFleet]
+		return [...this.deployedFleet, ...this.notDeployedFleet, ...this.sunkFleet]
 	}
 
 	get sunkFleet() {
@@ -95,7 +95,11 @@ export default class Gameboard {
 	}
 
 	hasShip(name) {
-		return this.hasDeployedShip(name) || this.hasNotDeployedShip(name)
+		return (
+			this.hasDeployedShip(name) ||
+			this.hasNotDeployedShip(name) ||
+			this.hasSunkShip(name)
+		)
 	}
 
 	canPlaceShip(name, [cStart, rStart], direction) {
