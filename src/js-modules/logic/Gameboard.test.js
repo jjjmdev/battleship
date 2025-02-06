@@ -139,4 +139,9 @@ describe("Gameboard class", () => {
 		expect(gameboard.deployedFleet).toEqual([shipName1])
 		expect(gameboard.notDeployedFleet).toEqual([shipName2])
 	})
+
+	it("can check if a ship is already in the deployed fleet", () => {
+		expect(gameboard.hasDeployedShip(shipName1)).toBeTruthy()
+		expect(gameboard.hasDeployedShip(shipName2)).toBeFalsy()
+	})
 })
