@@ -89,6 +89,10 @@ export default class Gameboard {
 	}
 
 	canPlaceShip(name, [cStart, rStart], direction) {
+		if (!this.hasNotDeployedShip(name)) {
+			return false
+		}
+
 		const ship = this.#notDeployedFleet.get(name)
 
 		// Compute the end
