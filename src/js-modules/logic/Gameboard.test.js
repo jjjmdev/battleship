@@ -181,5 +181,15 @@ describe("Gameboard class", () => {
 				"The cell is out-of-bound"
 			)
 		})
+
+		const sampleCoordsMiss2 = [0, 3]
+		const sampleCoordsHits2 = [1, 2]
+
+		it("returns true if the attack is a hit, increasing the ship hits, and false otherwise", () => {
+			expect(gameboard.receiveAttack(sampleCoordsMiss2)).toBeFalsy()
+			expect(gameboard.receiveAttack(sampleCoordsHits2)).toBeTruthy()
+
+			expect(gameboard.getCell(sampleCoordsHits2).getShip().hits).toBe(2)
+		})
 	})
 })
