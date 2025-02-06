@@ -61,6 +61,10 @@ export default class Gameboard {
 		return this.#deployedFleet.has(name)
 	}
 
+	hasNotDeployedShip(name) {
+		return this.#notDeployedFleet.has(name)
+	}
+
 	getCell([c, r]) {
 		if (this.isValidCell([c, r])) return this.#cells[c][r]
 
