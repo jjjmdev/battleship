@@ -30,4 +30,10 @@ describe("Player class", () => {
 		expect(player.gameboard.fleet).toEqual(fleetNames)
 		expect(player.gameboard.notDeployedFleet).toEqual(fleetNames)
 	})
+
+	it("can randomly place the (not deployed) fleet on the board", () => {
+		player.randomShipsPlacement()
+		expect(player.gameboard.fleet).toEqual(fleetNames)
+		expect(player.gameboard.deployedFleet).toEqual(fleetNames)
+	})
 })
