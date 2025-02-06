@@ -215,9 +215,13 @@ describe("Gameboard class", () => {
 			expect(gameboard.hasDeployedShip(shipName1)).toBeFalsy()
 			// the following must still be true
 			expect(gameboard.hasShip(shipName1)).toBeTruthy()
-			console.log(gameboard.fleet)
 
 			expect(gameboard.fleet.sort()).toEqual([shipName1, shipName2].sort())
+		})
+
+		it("checks if there are deployed ships", () => {
+			// ship 2 is not deployed, ship 1 is sunk
+			expect(gameboard.hasDeployedShips()).toBeFalsy()
 		})
 	})
 })
