@@ -40,7 +40,12 @@ export default class Cell {
 
 		this.#hasBeenAttacked = true
 
-		return this.hasShip()
+		if (this.hasShip()) {
+			this.#ship.hit()
+			return true
+		}
+
+		return false
 	}
 
 	hasBeenAttacked() {
