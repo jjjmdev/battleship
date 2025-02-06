@@ -101,7 +101,8 @@ export default class Gameboard {
 	}
 
 	placeShip(name, [cStart, rStart], direction) {
-		if (!this.canPlaceShip(name, [cStart, rStart], direction)) return false
+		if (!this.canPlaceShip(name, [cStart, rStart], direction))
+			throw new Error("The ship cannot be placed in this position")
 
 		const ship = this.#fleet.get(name)
 		const [cDisp, rDisp] = directionDisplacement[direction]
