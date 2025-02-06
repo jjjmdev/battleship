@@ -146,6 +146,6 @@ export default class Gameboard {
 	}
 
 	receiveAttack([c, r]) {
-		this.getCell([c, r]).receiveAttack()
+		return this.getCell([c, r]).receiveAttack()
 	}
 }
