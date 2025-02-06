@@ -176,6 +176,10 @@ export default class Gameboard {
 	hasSunkShip(name) {
 		return this.#sunkFleet.has(name)
 	}
+
+	hasDeployedShips() {
+		return this.#deployedFleet.size > 0
+	}
 }
 
 function getMapKey(map, val) {
