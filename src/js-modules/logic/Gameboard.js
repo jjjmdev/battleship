@@ -144,4 +144,8 @@ export default class Gameboard {
 		this.#notDeployedFleet.delete(name)
 		this.#deployedFleet.set(name, ship)
 	}
+
+	receiveAttack([c, r]) {
+		this.getCell([c, r]).receiveAttack()
+	}
 }
