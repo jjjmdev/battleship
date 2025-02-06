@@ -180,6 +180,10 @@ export default class Gameboard {
 	hasDeployedShips() {
 		return this.#deployedFleet.size > 0
 	}
+
+	hasNotDeployedShips() {
+		return this.#notDeployedFleet.size > 0
+	}
 }
 
 function getMapKey(map, val) {
