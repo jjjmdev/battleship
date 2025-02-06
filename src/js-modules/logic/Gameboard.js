@@ -85,7 +85,7 @@ export default class Gameboard {
 	}
 
 	hasShip(name) {
-		return this.#notDeployedFleet.has(name) || this.#deployedFleet.has(name)
+		return this.hasDeployedShip(name) || this.hasNotDeployedShip(name)
 	}
 
 	canPlaceShip(name, [cStart, rStart], direction) {
