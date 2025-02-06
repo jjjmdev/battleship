@@ -191,5 +191,11 @@ describe("Gameboard class", () => {
 
 			expect(gameboard.getCell(sampleCoordsHits2).getShip().hits).toBe(2)
 		})
+
+		it("throws an error if an attack is repeated on the same cell", () => {
+			expect(() => gameboard.receiveAttack(sampleCoordsHits2)).toThrow(
+				"This cell has already been attacked"
+			)
+		})
 	})
 })
