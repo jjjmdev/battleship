@@ -197,5 +197,13 @@ describe("Gameboard class", () => {
 				"This cell has already been attacked"
 			)
 		})
+
+		it("can retrieve the sunk fleet ships", () => {
+			expect(gameboard.sunkFleet).toEqual([])
+			// Add attacks to sink the ship 1
+			gameboard.receiveAttack([1, 1])
+			gameboard.receiveAttack([1, 0])
+			expect(gameboard.sunkFleet).toEqual([shipName1])
+		})
 	})
 })
