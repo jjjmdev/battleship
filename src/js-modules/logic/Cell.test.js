@@ -24,7 +24,7 @@ describe("Cell class", () => {
 		expect(cell.getShip()).toBe(ship)
 	})
 
-	it("can be attack", () => {
+	it("can be attacked", () => {
 		expect(cell.hasBeenAttacked()).toBeFalsy()
 		cell.receiveAttack()
 		expect(cell.hasBeenAttacked()).toBeTruthy()
