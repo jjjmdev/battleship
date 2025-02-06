@@ -57,6 +57,12 @@ export default class Gameboard {
 		return [...this.deployedFleet, ...this.notDeployedFleet]
 	}
 
+	get sunkFleet() {
+		return Array.from(this.#deployedFleet.entries())
+			.filter(([name, ship]) => ship.isSunk())
+			.map(([name]) => name)
+	}
+
 	hasDeployedShip(name) {
 		return this.#deployedFleet.has(name)
 	}
