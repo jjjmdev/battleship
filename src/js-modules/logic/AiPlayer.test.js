@@ -7,6 +7,7 @@ describe("AiPlayer class", () => {
 	})
 
 	const playerName = "Captain AI"
+	const opponentName = "Captain Opponent"
 	const sizeGameboard = 10
 	const fleet = [
 		["Carrier", 5],
@@ -18,6 +19,7 @@ describe("AiPlayer class", () => {
 	const fleetNames = fleet.map((item) => item[0])
 
 	const aiPlayer = new AiPlayer(playerName, fleet, sizeGameboard)
+	const opponentPlayer = new AiPlayer(opponentName, fleet, sizeGameboard)
 
 	describe("has the characteristics of a normal player", () => {
 		// same tests as Player class
@@ -38,6 +40,12 @@ describe("AiPlayer class", () => {
 			aiPlayer.randomShipsPlacement()
 			expect(aiPlayer.gameboard.fleet).toEqual(fleetNames)
 			expect(aiPlayer.gameboard.deployedFleet).toEqual(fleetNames)
+		})
+
+		it("can choose a valid opponent target cell for the next attack", () => {
+			opponentPlayer.randomShipsPlacement()
+			const cellCoords = aiPlayer.getOpponentTargetCellCoords()
+			expect(opponentPlayer.gameboard.isValidCell(cellCoords)).toBeTruthy()
 		})
 	})
 })
