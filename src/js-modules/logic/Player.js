@@ -25,9 +25,7 @@ export default class Player {
 	) {
 		this.#name = name
 		this.#gameboard = new Gameboard(nCols, nRows)
-
 		this.#fleet = fleet
-
 		this.#fleet.forEach(([name, length]) =>
 			this.#gameboard.addShip(name, length)
 		)
