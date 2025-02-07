@@ -227,5 +227,10 @@ describe("Gameboard class", () => {
 		it("checks if there are not deployed ships", () => {
 			expect(gameboard.hasNotDeployedShips()).toBeTruthy()
 		})
+
+		it("can return the cell matrix (array of arrays)", () => {
+			expect(gameboard.cells.length).toBe(nCols)
+			expect(gameboard.cells[0].length).toBe(nRows)
+		})
 	})
 })
