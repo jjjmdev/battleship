@@ -1,5 +1,6 @@
 import Cell from "./Cell.js"
 import Ship from "./Ship.js"
+import { randomInt } from "../utils/math.js"
 
 const directionDisplacement = {
 	N: [0, -1],
@@ -65,6 +66,10 @@ export default class Gameboard {
 
 	get sunkFleet() {
 		return [...this.#sunkFleet.keys()]
+	}
+
+	static getAllDirections() {
+		return Object.keys(directionDisplacement)
 	}
 
 	hasDeployedShip(name) {

@@ -1,4 +1,7 @@
 import Gameboard from "./Gameboard"
+import { randomInt } from "../utils/math"
+
+const allDirections = Gameboard.getAllDirections()
 
 export default class Player {
 	#name
@@ -26,5 +29,18 @@ export default class Player {
 
 	get fleet() {
 		return this.#fleet.keys()
+	}
+
+	randomShipsPlacement() {
+		this.#gameboard.notDeployedFleet.forEach((name) => {
+			let cStart, rStart, direction
+			do {
+				cStart = randomInt(0, this.#gameboard.nCols - 1)
+				rStart = randomInt(0, this.#gameboard.nRows - 1)
+				direction = allDirections[randomInt(0, allDirections.length - 1)]
+			} while (!this.#gameboard.canPlaceShip(name, [cStart, rStart], direction))
+
+			this.#gameboard.placeShip(name, [cStart, rStart], direction)
+		})
 	}
 }
