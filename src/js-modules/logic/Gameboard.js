@@ -68,6 +68,10 @@ export default class Gameboard {
 		return [...this.#sunkFleet.keys()]
 	}
 
+	get cells() {
+		return this.#cells
+	}
+
 	static getAllDirections() {
 		return Object.keys(directionDisplacement)
 	}
