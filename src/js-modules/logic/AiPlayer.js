@@ -30,4 +30,12 @@ export default class AiPlayer extends Player {
 			randomInt(0, this.#possibleTargets.size - 1)
 		]
 	}
+
+	applyPostAttackActions(cellCoords, otherData = {}) {
+		return this.#applyPostAttackActionsRandom(cellCoords)
+	}
+
+	#applyPostAttackActionsRandom(cellCoords) {
+		this.#possibleTargets.delete(cellCoords)
+	}
 }
