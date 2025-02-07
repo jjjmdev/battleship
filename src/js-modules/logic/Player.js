@@ -8,7 +8,21 @@ export default class Player {
 	#gameboard
 	#fleet
 
-	constructor(name, fleet, nCols = 10, nRows = nCols) {
+	static defaultGameboardSize = 10
+	static defaultFleet = [
+		["Carrier", 5],
+		["Battleship", 4],
+		["Cruiser", 3],
+		["Submarine", 3],
+		["Destroyer", 2],
+	]
+
+	constructor(
+		name,
+		fleet = Player.defaultFleet,
+		nCols = Player.defaultGameboardSize,
+		nRows = nCols
+	) {
 		this.#name = name
 		this.#gameboard = new Gameboard(nCols, nRows)
 
