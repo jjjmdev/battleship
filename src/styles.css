@@ -173,3 +173,21 @@ button {
 ::-webkit-scrollbar-thumb:hover {
 	background: #555; /* color of the scroll thumb on hover */
 }
+
+/* Custom gameboard style */
+.gameboard {
+	background-color: var(--gameboard-bg-col);
+}
+
+/* Custom cell style */
+.cell {
+	border: 1px solid var(--cell-border-col);
+}
+
+.cell.hit {
+	background-color: var(--cell-hit-col);
+}
+
+.cell.miss {
+	background-color: var(--cell-miss-col);
+}

@@ -15,6 +15,7 @@ export default class CellDom {
 
 		// temporary: mark the ships
 		markShip.call(this)
+		setAttackStatus.call(this)
 	}
 
 	get div() {
@@ -34,12 +35,21 @@ function initCellDiv(cell) {
 	div.style.gridColumn = cell.x + 1
 	div.style.gridRow = cell.y + 1
 	div.style.aspectRatio = 1
-	div.style.border = "1px solid darkblue"
 	return div
 }
 
 function markShip() {
 	if (this.cell.hasShip()) {
 		this.div.textContent = "#"
+	}
+}
+
+function setAttackStatus() {
+	if (this.cell.hasBeenAttacked()) {
+		if (this.cell.hasShip()) {
+			this.div.classList.add("hit")
+		} else {
+			this.div.classList.add("miss")
+		}
 	}
 }
