@@ -39,9 +39,10 @@ export function initH3(className = null) {
 	return element
 }
 
-export function initP(className = null) {
+export function initP(className = null, text = "") {
 	const element = document.createElement("p")
 	applyClass(element, className)
+	element.textContent = text
 	return element
 }
 

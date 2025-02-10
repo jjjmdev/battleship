@@ -1,10 +1,11 @@
-import { initDiv } from "../utils/domComponents.js"
+import { initDiv, initP } from "../utils/domComponents.js"
 import initMainHeader from "./initMainHeader.js"
 import PlayerDom from "./PlayerDom.js"
 
 const blockName = "game"
 const cssClass = {
 	playersDiv: "players-div",
+	msgP: "msg-p",
 }
 
 const getCssClass = (element) => `${blockName}__${cssClass[element]}`
@@ -32,7 +33,14 @@ function initGameViewDiv(player1Dom, player2Dom) {
 	const header = initMainHeader()
 
 	playersDiv.append(player1Dom.div, player2Dom.div)
-	div.append(header, playersDiv)
+	const msgP = initGameMsg()
+
+	div.append(header, playersDiv, msgP)
 
 	return div
+}
+
+function initGameMsg() {
+	const msg = "A message to show game status"
+	return initP(getCssClass("msgP"), msg)
 }
