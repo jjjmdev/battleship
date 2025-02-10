@@ -5,6 +5,7 @@ import PlayerDom from "./PlayerDom.js"
 const blockName = "game"
 const cssClass = {
 	playersDiv: "players-div",
+	playerDiv: "player-div",
 	msgP: "msg-p",
 }
 
@@ -32,7 +33,12 @@ function initGameViewDiv(player1Dom, player2Dom) {
 
 	const header = initMainHeader()
 
-	playersDiv.append(player1Dom.div, player2Dom.div)
+	const player1Div = initDiv(getCssClass("playerDiv"))
+	player1Div.append(player1Dom.div)
+	const player2Div = initDiv(getCssClass("playerDiv"))
+	player2Div.append(player2Dom.div)
+
+	playersDiv.append(player1Div, player2Div)
 	const msgP = initGameMsg()
 
 	div.append(header, playersDiv, msgP)
