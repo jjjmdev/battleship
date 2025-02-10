@@ -12,6 +12,9 @@ export default class CellDom {
 		this.#cell = cell
 		this.#div = initCellDiv(cell)
 		this.#div.obj = this
+
+		// temporary: mark the ships
+		markShip.call(this)
 	}
 
 	get div() {
@@ -33,4 +36,10 @@ function initCellDiv(cell) {
 	div.style.aspectRatio = 1
 	div.style.border = "1px solid darkblue"
 	return div
+}
+
+function markShip() {
+	if (this.cell.hasShip()) {
+		this.div.textContent = "#"
+	}
 }
