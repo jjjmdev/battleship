@@ -14,9 +14,16 @@ export function initDiv(className = null) {
 	return element
 }
 
-export function initH1(className = null) {
+export function initHeader(className = null) {
+	const element = document.createElement("header")
+	applyClass(element, className)
+	return element
+}
+
+export function initH1(className = null, text = "") {
 	const element = document.createElement("h1")
 	applyClass(element, className)
+	element.textContent = text
 	return element
 }
 

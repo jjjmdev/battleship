@@ -1,4 +1,5 @@
 import { initDiv } from "../utils/domComponents.js"
+import initMainHeader from "./initMainHeader.js"
 import PlayerDom from "./PlayerDom.js"
 
 const blockName = "game"
@@ -28,8 +29,10 @@ function initGameViewDiv(player1Dom, player2Dom) {
 	const div = initDiv(blockName)
 	const playersDiv = initDiv(getCssClass("playersDiv"))
 
+	const header = initMainHeader()
+
 	playersDiv.append(player1Dom.div, player2Dom.div)
-	div.append(playersDiv)
+	div.append(header, playersDiv)
 
 	return div
 }
