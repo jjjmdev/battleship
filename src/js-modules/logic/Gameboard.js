@@ -64,10 +64,6 @@ export default class Gameboard {
 		return [...this.deployedFleet, ...this.notDeployedFleet, ...this.sunkFleet]
 	}
 
-	get sunkFleet() {
-		return [...this.#sunkFleet.keys()]
-	}
-
 	get cells() {
 		return this.#cells
 	}
@@ -196,7 +192,7 @@ export default class Gameboard {
 }
 
 function getMapKey(map, val) {
-	for (let [key, value] of map.entries()) {
+	for (const [key, value] of map.entries()) {
 		if (value === val) return key
 	}
 
