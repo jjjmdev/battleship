@@ -27,4 +27,17 @@ describe("GameController class", () => {
 		expect(gameController1Player.player1.name).toBe(player1Name)
 		expect(gameController1Player.player2.name).toBe(player2AIName)
 	})
+
+	it("can deploy the players' fleet", () => {
+		const hasAllShipsDeployed = (player) => {
+			const gameboard = player.gameboard
+			expect(gameboard.hasDeployedShips()).toBeTruthy()
+			expect(gameboard.deployedFleet.length).toBe(gameboard.fleet.length)
+		}
+
+		hasAllShipsDeployed(gameController2Players.player1)
+		hasAllShipsDeployed(gameController2Players.player2)
+		hasAllShipsDeployed(gameController1Player.player1)
+		hasAllShipsDeployed(gameController1Player.player2)
+	})
 })
