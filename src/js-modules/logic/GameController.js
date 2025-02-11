@@ -49,6 +49,10 @@ export default class GameController {
 		;[this.#current, this.#opponent] = [this.#opponent, this.#current]
 	}
 
+	#isAIPlayer() {
+		return this.#current instanceof AiPlayer
+	}
+
 	/* Gameplay Methods */
 	#initGame() {
 		this.#deployFleet()
@@ -76,6 +80,89 @@ export default class GameController {
 		PubSub.unsubscribe(pubSubTokens.gameViewInitialized)
 
 		this.#initCurrentPlayer()
-		console.log(`${this.#current.name} starts`)
+		this.#consoleLogMessage("startGame")
+
+		// Continue playing until someone wins, or
+		// no more moves are allowed
+		let play = true
+		while (play) {
+			play = this.#playTurn()
+		}
+	}
+
+	#playTurn() {
+		this.#consoleLogMessage("startTurn")
+
+		// Get the coords of the move
+		const coords = this.#getAttackCoords()
+		// Attack the opponent and get outcome info
+		const outcome = this.#attackTheOpponent(coords)
+		// Perform actions based on hit or miss outcome (todo)
+		this.#consoleLogMessage("attackInfo", { coords, outcome })
+
+		// End the game if the current player wins
+		if (outcome.isWin) {
+			this.#consoleLogMessage("endGame")
+			return false
+		}
+
+		// Perform post-attack actions
+		this.#applyPostAttackActions(coords)
+		// Pass turn to opponent
+		this.#switchCurrentPlayer()
+		return true
+	}
+
+	#getAttackCoords() {
+		if (this.#isAIPlayer()) {
+			return this.#current.getOpponentTargetCellCoords()
+		} else {
+			// default, todo
+			return [0, 0]
+		}
+	}
+
+	#attackTheOpponent(coords) {
+		// attacks and returns an object with info about the outcome of the attack
+		const outcomeCode = this.#opponent.gameboard.receiveAttack(coords)
+
+		const isHit = outcomeCode > 0
+		const isSunk = outcomeCode == 2
+		const isWin = !this.#opponent.gameboard.hasDeployedShips()
+
+		// The player can only know the hit ship if this gets sunk
+		const sunkShip = isSunk
+			? this.#opponent.gameboard.getCell(coords).getShip()
+			: null
+
+		return { isHit, isSunk, isWin, sunkShip }
+	}
+
+	#applyPostAttackActions(coords) {
+		if (this.#isAIPlayer()) {
+			this.#current.applyPostAttackActions(coords)
+		} else {
+			// todo
+		}
+	}
+
+	#consoleLogMessage(label, data = {}) {
+		const message = {
+			startGame: () => `${this.#current.name} starts.`,
+			startTurn: () => `${this.#current.name}'s turn.`,
+			attackInfo: ({ coords, outcome }) => {
+				const coordsStr = `[${coords[0]},${coords[1]}]`
+				const outcomeStr = `${outcome.isHit ? "hit" : "miss"}${
+					outcome.isSunk ? "and sunk" : ""
+				}`
+				const sunkShip = outcome.isSunk
+					? ` (${outcome.sunkShip.name}, length: ${outcome.sunkShip.length})`
+					: ""
+				return `Attacks ${coordsStr} > ${outcomeStr}${sunkShip}`
+			},
+			endGame: () => `${this.#current.name} WINS!`,
+		}
+
+		console.log(message[label](data))
 	}
 }
