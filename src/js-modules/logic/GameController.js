@@ -16,6 +16,8 @@ export default class GameController {
 		this.#initGame()
 	}
 
+	/* Player Methods */
+
 	get player1() {
 		return this.#player1
 	}
@@ -30,17 +32,6 @@ export default class GameController {
 		} else {
 			return new Player(playerName)
 		}
-	}
-
-	#initGame() {
-		this.#deployFleet()
-		this.#initCurrentPlayer()
-		this.#initGameView()
-	}
-
-	#deployFleet() {
-		this.#player1.randomShipsPlacement()
-		this.#player2.randomShipsPlacement()
 	}
 
 	#initCurrentPlayer() {
@@ -58,10 +49,33 @@ export default class GameController {
 		;[this.#current, this.#opponent] = [this.#opponent, this.#current]
 	}
 
+	/* Gameplay Methods */
+	#initGame() {
+		this.#deployFleet()
+		this.#initGameView()
+	}
+
+	#deployFleet() {
+		this.#player1.randomShipsPlacement()
+		this.#player2.randomShipsPlacement()
+	}
+
 	#initGameView() {
+		PubSub.subscribe(
+			pubSubTokens.gameViewInitialized,
+			this.#playGame.bind(this)
+		)
+
 		PubSub.publish(pubSubTokens.initGameView, {
 			player1: this.#player1,
 			player2: this.#player2,
 		})
+	}
+
+	#playGame() {
+		PubSub.unsubscribe(pubSubTokens.gameViewInitialized)
+
+		this.#initCurrentPlayer()
+		console.log(`${this.#current.name} starts`)
 	}
 }
