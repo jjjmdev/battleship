@@ -4,6 +4,8 @@ import AiPlayer from "./AiPlayer.js"
 export default class GameController {
 	#player1
 	#player2
+	#current // Current player turn
+	#opponent // Next player turn
 
 	constructor(player1Name, player2Name, versusAi = true) {
 		this.#player1 = this.#initPlayer(player1Name)
@@ -30,10 +32,26 @@ export default class GameController {
 
 	#initGame() {
 		this.#deployFleet()
+		this.#initCurrentPlayer()
 	}
 
 	#deployFleet() {
 		this.#player1.randomShipsPlacement()
 		this.#player2.randomShipsPlacement()
+	}
+
+	#initCurrentPlayer() {
+		// Random
+		if (Math.random() < 0.5) {
+			this.#current = this.#player1
+			this.#opponent = this.#player2
+		} else {
+			this.#current = this.#player2
+			this.#opponent = this.#player1
+		}
+	}
+	// eslint-disable-next-line no-unused-private-class-members
+	#switchCurrentPlayer() {
+		;[this.#current, this.#opponent] = [this.#opponent, this.#current]
 	}
 }
