@@ -8,6 +8,8 @@ export default class GameController {
 	constructor(player1Name, player2Name, versusAi = true) {
 		this.#player1 = this.#initPlayer(player1Name)
 		this.#player2 = this.#initPlayer(player2Name, versusAi)
+
+		this.#initGame()
 	}
 
 	get player1() {
@@ -24,5 +26,14 @@ export default class GameController {
 		} else {
 			return new Player(playerName)
 		}
+	}
+
+	#initGame() {
+		this.#deployFleet()
+	}
+
+	#deployFleet() {
+		this.#player1.randomShipsPlacement()
+		this.#player2.randomShipsPlacement()
 	}
 }
