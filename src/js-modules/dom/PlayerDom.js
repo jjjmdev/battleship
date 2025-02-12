@@ -1,11 +1,15 @@
 import PubSub from "pubsub-js"
 import { pubSubTokensUi } from "../pubSubTokens.js"
-import { initDiv, initH3 } from "../utils/domComponents.js"
+import { initDiv, initH3, initSpan } from "../utils/domComponents.js"
 import GameboardDom from "./GameboardDom.js"
 
 const blockName = "player"
 const cssClass = {
-	nameH3: "name-h3",
+	playerH3: "player-h3",
+	nameSpan: "name-span",
+	dividerSpan: "divider-span",
+	deployedFleetSizeSpan: "deployed-fleet-size-span",
+	textShipSpan: "text-ship-span",
 	gameboardCnt: "gameboard",
 }
 
@@ -41,15 +45,19 @@ export default class PlayerDom {
 	}
 
 	#showAttackOutcome(token, { coords, outcome }) {
+		if (outcome.isSunk) {
+			PubSub.publish(pubSubTokensUi.shipHasSunk(this.player))
+		}
+
 		this.#gameboardDiv.obj.showAttackOutcome(coords, outcome)
 	}
 
-	#initPlayerDiv() {
+	#initPlayerDiv(player) {
 		const div = initDiv(blockName)
-		const h3 = this.#initNameDiv(this.player.name)
+		const h3 = this.#initHeaderDiv(player)
 
 		const gameboardCnt = initDiv(getCssClass("gameboardCnt"))
-		const gameboardDom = new GameboardDom(this.player.gameboard)
+		const gameboardDom = new GameboardDom(player.gameboard)
 		this.#gameboardDiv = gameboardDom.div
 		gameboardCnt.append(this.#gameboardDiv)
 
@@ -57,9 +65,26 @@ export default class PlayerDom {
 		return div
 	}
 
-	#initNameDiv(name) {
-		const h3 = initH3(getCssClass("nameH3"))
-		h3.textContent = `${name} - 4 ships`
+	#initHeaderDiv(player) {
+		const h3 = initH3(getCssClass("playerH3"))
+		const nameSpan = initSpan(getCssClass("nameSpan"))
+		const dividerSpan = initSpan(getCssClass("dividerSpan"))
+		const deployedFleetSizeSpan = initSpan(getCssClass("deployedFleetSizeSpan"))
+		const textShipSpan = initSpan(getCssClass("textShipSpan"))
+
+		nameSpan.textContent = player.name
+		dividerSpan.textContent = " - "
+		deployedFleetSizeSpan.textContent = player.gameboard.deployedFleet.length
+		textShipSpan.textContent =
+			player.gameboard.deployedFleet.length > 1 ? " ships" : "ship"
+
+		PubSub.subscribe(pubSubTokensUi.shipHasSunk(this.player), () => {
+			const fleetLength = player.gameboard.deployedFleet.length
+			deployedFleetSizeSpan.textContent = fleetLength
+			textShipSpan.textContent = fleetLength > 1 ? " ships" : " ship"
+		})
+
+		h3.append(nameSpan, dividerSpan, deployedFleetSizeSpan, textShipSpan)
 		return h3
 	}
 
@@ -67,7 +92,3 @@ export default class PlayerDom {
 		this.#gameboardDiv.obj.enableAiming()
 	}
 }
-
-// private methods
-// if they use 'this', they have to be evoked as:
-// methodName.call(this.args)

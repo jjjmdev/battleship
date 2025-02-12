@@ -195,3 +195,9 @@ export function initHr(className = null) {
 	applyClass(element, className)
 	return element
 }
+
+export function initSpan(className = null) {
+	const element = document.createElement("span")
+	applyClass(element, className)
+	return element
+}

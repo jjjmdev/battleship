@@ -217,7 +217,7 @@ button {
 	justify-content: center;
 }
 
-.player__name-h3 {
+.player__player-h3 {
 	text-align: center;
 }
 
@@ -249,7 +249,7 @@ button {
 }
 
 /* Custom player style */
-.player__name-h3 {
+.player__player-h3 {
 	font-size: var(--player-h3-fontsize);
 }
 

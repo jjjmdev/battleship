@@ -13,4 +13,5 @@ export const pubSubTokensUi = {
 	enableAimingOnGameboard: (player) =>
 		`ui: ENABLE AIMING ON ${player.name} GAMEBOARD`,
 	showAttackOutcome: (player) => `ui: SHOW ATTACK ON ${player.name} GAMEBOARD`,
+	shipHasSunk: (player) => `ui: ${player.name} SHIP HAS SUNK`,
 }
