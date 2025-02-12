@@ -92,8 +92,19 @@ export default class GameController {
 	#playTurn() {
 		this.#consoleLogMessage("startTurn")
 
-		// Get the coords of the move
-		const coords = this.#getAttackCoords()
+		// First, subscribe to the token that perform the attack
+		// when its coords are acquired
+		PubSub.subscribe(
+			pubSubTokens.attackCoordsAcquired,
+			this.#attackCoordsAcquiredCallback.bind(this)
+		)
+
+		this.#getAttackCoords()
+	}
+
+	#attackCoordsAcquiredCallback(token, coords) {
+		PubSub.unsubscribe(pubSubTokens.attackCoordsAcquired)
+
 		// Attack the opponent and get outcome info
 		const outcome = this.#attackTheOpponent(coords)
 		// Perform actions based on hit or miss outcome (todo)
@@ -115,10 +126,11 @@ export default class GameController {
 
 	#getAttackCoords() {
 		if (this.#isAIPlayer()) {
-			return this.#current.getOpponentTargetCellCoords()
+			const coords = this.#current.getOpponentTargetCellCoords()
+			PubSub.publish(pubSubTokens.attackCoordsAcquired, coords)
 		} else {
 			// default, todo
-			return [0, 0]
+			PubSub.publish(pubSubTokens.attackCoordsAcquired, [0, 0])
 		}
 	}
 
