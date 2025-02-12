@@ -20,8 +20,6 @@ export default class GameboardDom {
 		this.#cells = new Map()
 		this.#div = this.#initGameboardDiv(gameboard)
 		this.#div.obj = this
-
-		this.enableAiming()
 	}
 
 	// getters
