@@ -44,7 +44,7 @@ export default class GameController {
 			this.#opponent = this.#player1
 		}
 	}
-	// eslint-disable-next-line no-unused-private-class-members
+
 	#switchCurrentPlayer() {
 		;[this.#current, this.#opponent] = [this.#opponent, this.#current]
 	}
@@ -84,10 +84,9 @@ export default class GameController {
 
 		// Continue playing until someone wins, or
 		// no more moves are allowed
-		let play = true
-		while (play) {
-			play = this.#playTurn()
-		}
+		PubSub.subscribe(pubSubTokens.playTurn, this.#playTurn.bind(this))
+		// Play the first turn
+		this.#playTurn()
 	}
 
 	#playTurn() {
@@ -103,14 +102,15 @@ export default class GameController {
 		// End the game if the current player wins
 		if (outcome.isWin) {
 			this.#consoleLogMessage("endGame")
-			return false
+			PubSub.unsubscribe(pubSubTokens.playTurn)
+			return
 		}
 
 		// Perform post-attack actions
 		this.#applyPostAttackActions(coords)
 		// Pass turn to opponent
 		this.#switchCurrentPlayer()
-		return true
+		PubSub.publish(pubSubTokens.playTurn)
 	}
 
 	#getAttackCoords() {
