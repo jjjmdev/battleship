@@ -13,10 +13,12 @@ export default class GameboardDom {
 	#gameboard
 	#div
 	#attackCallback
+	#cells
 
 	constructor(gameboard) {
 		this.#gameboard = gameboard
-		this.#div = initGameboardDiv(gameboard)
+		this.#cells = new Map()
+		this.#div = this.#initGameboardDiv(gameboard)
 		this.#div.obj = this
 
 		this.enableAiming()
@@ -31,10 +33,37 @@ export default class GameboardDom {
 		return this.#div
 	}
 
+	showAttackOutcome(coords, outcome) {
+		const cellDom = this.#cells.get(coords.join(","))
+		cellDom.setAttackStatus()
+		PubSub.publish(pubSubTokens.attackOutcomeShown, { coords, outcome })
+	}
+
 	enableAiming() {
 		this.#div.classList.add(aimingClass)
 		this.#attackCallback = this.#getAttackCoordsOnClickCallback.bind(this)
 		this.#div.addEventListener("click", this.#attackCallback)
+	}
+
+	#initGameboardDiv(gameboard) {
+		const div = initDiv(blockName)
+
+		// Forced grid appearance
+		div.style.display = "grid"
+		div.style.aspectRatio = `${gameboard.nCols}/${gameboard.nRows}`
+		div.style.gridTemplateColumns = `repeat(${gameboard.nCols}, minmax(0, 1fr))`
+		div.style.gridTemplateRows = `repeat(${gameboard.nRows}, minmax(0, 1fr))`
+
+		const cells = gameboard.cells
+		cells.forEach((column) => {
+			column.forEach((cell) => {
+				const cellDom = new CellDom(cell)
+				this.#cells.set(cell.coords.join(","), cellDom)
+				div.append(cellDom.div)
+			})
+		})
+
+		return div
 	}
 
 	#getAttackCoordsOnClickCallback(e) {
@@ -50,8 +79,6 @@ export default class GameboardDom {
 		const cellDiv = e.target
 		const cell = cellDiv.obj.cell
 
-		console.log(cell)
-
 		if (!cell.hasBeenAttacked()) {
 			// exit aiming mode
 			this.#div.classList.remove(aimingClass)
@@ -60,27 +87,4 @@ export default class GameboardDom {
 
 		PubSub.publish(pubSubTokens.attackCoordsAcquired, cell.coords)
 	}
-}
-
-// private methods
-// if they use 'this', they have to be evoked as:
-// methodName.call(this.args)
-function initGameboardDiv(gameboard) {
-	const div = initDiv(blockName)
-
-	// Forced grid appearance
-	div.style.display = "grid"
-	div.style.aspectRatio = `${gameboard.nCols}/${gameboard.nRows}`
-	div.style.gridTemplateColumns = `repeat(${gameboard.nCols}, minmax(0, 1fr))`
-	div.style.gridTemplateRows = `repeat(${gameboard.nRows}, minmax(0, 1fr))`
-
-	const cells = gameboard.cells
-	cells.forEach((column) => {
-		column.forEach((cell) => {
-			const cellDom = new CellDom(cell)
-			div.append(cellDom.div)
-		})
-	})
-
-	return div
 }

@@ -105,24 +105,16 @@ export default class GameController {
 	#attackCoordsAcquiredCallback(token, coords) {
 		PubSub.unsubscribe(pubSubTokens.attackCoordsAcquired)
 
+		// Perform actions based on hit or miss outcome
+		PubSub.subscribe(
+			pubSubTokens.attackOutcomeShown,
+			this.#attackOutcomeShownCallback.bind(this)
+		)
+
 		// Attack the opponent and get outcome info
 		const outcome = this.#attackTheOpponent(coords)
 		// Perform actions based on hit or miss outcome (todo)
-		this.#consoleLogMessage("attackInfo", { coords, outcome })
-
-		// End the game if the current player wins
-		if (outcome.isWin) {
-			this.#consoleLogMessage("endGame")
-			PubSub.unsubscribe(pubSubTokens.playTurn)
-			PubSub.unsubscribe(pubSubTopicUi) // remove all UI PubSub subscriptions
-			return
-		}
-
-		// Perform post-attack actions
-		this.#applyPostAttackActions(coords)
-		// Pass turn to opponent
-		this.#switchCurrentPlayer()
-		PubSub.publish(pubSubTokens.playTurn)
+		this.#showAttackOutcome(coords, outcome)
 	}
 
 	#getAttackCoords() {
@@ -176,5 +168,34 @@ export default class GameController {
 		}
 
 		console.log(message[label](data))
+	}
+
+	#showAttackOutcome(coords, outcome) {
+		this.#consoleLogMessage("attackInfo", { coords, outcome })
+
+		PubSub.publish(pubSubTokensUi.showAttackOutcome(this.#opponent), {
+			coords,
+			outcome,
+		})
+	}
+
+	#attackOutcomeShownCallback(token, { coords, outcome }) {
+		// First, unsubscribe from attackOutcomeShown token
+		PubSub.unsubscribe(pubSubTokens.attackOutcomeShown)
+
+		// End the game if the current player wins
+		if (outcome.isWin) {
+			this.#consoleLogMessage("endGame")
+			PubSub.unsubscribe(pubSubTokens.playTurn)
+			PubSub.unsubscribe(pubSubTopicUi) // remove all UI PubSub subscriptions
+			return
+		}
+
+		// Perform post-attack actions
+		this.#applyPostAttackActions(coords)
+		// Pass turn to opponent
+		this.#switchCurrentPlayer()
+
+		PubSub.publish(pubSubTokens.playTurn)
 	}
 }

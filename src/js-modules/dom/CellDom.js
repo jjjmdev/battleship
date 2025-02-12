@@ -15,7 +15,7 @@ export default class CellDom {
 
 		// temporary: mark the ships
 		markShip.call(this)
-		setAttackStatus.call(this)
+		this.setAttackStatus()
 	}
 
 	get div() {
@@ -24,6 +24,16 @@ export default class CellDom {
 
 	get cell() {
 		return this.#cell
+	}
+
+	setAttackStatus() {
+		if (this.cell.hasBeenAttacked()) {
+			if (this.cell.hasShip()) {
+				this.div.classList.add("hit")
+			} else {
+				this.div.classList.add("miss")
+			}
+		}
 	}
 }
 
@@ -41,15 +51,5 @@ function initCellDiv(cell) {
 function markShip() {
 	if (this.cell.hasShip()) {
 		this.div.textContent = "#"
-	}
-}
-
-function setAttackStatus() {
-	if (this.cell.hasBeenAttacked()) {
-		if (this.cell.hasShip()) {
-			this.div.classList.add("hit")
-		} else {
-			this.div.classList.add("miss")
-		}
 	}
 }

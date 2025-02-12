@@ -25,6 +25,11 @@ export default class PlayerDom {
 			pubSubTokensUi.enableAimingOnGameboard(player),
 			this.#enableAimingOnGameboard.bind(this)
 		)
+
+		PubSub.subscribe(
+			pubSubTokensUi.showAttackOutcome(player),
+			this.#showAttackOutcome.bind(this)
+		)
 	}
 
 	get player() {
@@ -33,6 +38,10 @@ export default class PlayerDom {
 
 	get div() {
 		return this.#div
+	}
+
+	#showAttackOutcome(token, { coords, outcome }) {
+		this.#gameboardDiv.obj.showAttackOutcome(coords, outcome)
 	}
 
 	#initPlayerDiv() {
