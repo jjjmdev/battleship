@@ -1,7 +1,7 @@
 import Player from "./Player.js"
 import AiPlayer from "./AiPlayer.js"
 import PubSub from "pubsub-js"
-import { pubSubTokens } from "../pubSubTokens.js"
+import { pubSubTokens, pubSubTokensUi, pubSubTopicUi } from "../pubSubTokens.js"
 
 export default class GameController {
 	#player1
@@ -114,6 +114,7 @@ export default class GameController {
 		if (outcome.isWin) {
 			this.#consoleLogMessage("endGame")
 			PubSub.unsubscribe(pubSubTokens.playTurn)
+			PubSub.unsubscribe(pubSubTopicUi) // remove all UI PubSub subscriptions
 			return
 		}
 
@@ -129,8 +130,7 @@ export default class GameController {
 			const coords = this.#current.getOpponentTargetCellCoords()
 			PubSub.publish(pubSubTokens.attackCoordsAcquired, coords)
 		} else {
-			// default, todo
-			PubSub.publish(pubSubTokens.attackCoordsAcquired, [0, 0])
+			PubSub.publish(pubSubTokensUi.enableAimingOnGameboard(this.#opponent))
 		}
 	}
 
@@ -165,10 +165,10 @@ export default class GameController {
 			attackInfo: ({ coords, outcome }) => {
 				const coordsStr = `[${coords[0]},${coords[1]}]`
 				const outcomeStr = `${outcome.isHit ? "hit" : "miss"}${
-					outcome.isSunk ? "and sunk" : ""
+					outcome.isSunk ? " and sunk" : ""
 				}`
 				const sunkShip = outcome.isSunk
-					? ` (${outcome.sunkShip.name}, length: ${outcome.sunkShip.length})`
+					? ` ship of size: ${outcome.sunkShip.length}`
 					: ""
 				return `Attacks ${coordsStr} > ${outcomeStr}${sunkShip}`
 			},
