@@ -15,6 +15,7 @@ export default class GameboardDom {
 	#div
 	#attackCallback
 	#cells
+	#deployedFleetDom
 
 	constructor(gameboard) {
 		this.#gameboard = gameboard
@@ -22,6 +23,11 @@ export default class GameboardDom {
 		this.#div = this.#initGameboardDiv(gameboard)
 		this.#div.obj = this
 
+		this.#deployedFleetDom = new Map()
+
+		// Temporary code for testing
+		this.showDeployedFleet()
+		this.hideDeployedFleet()
 		this.showDeployedFleet()
 	}
 
@@ -46,18 +52,44 @@ export default class GameboardDom {
 		this.#div.addEventListener("click", this.#attackCallback)
 	}
 
-	showDeployedFleet() {
-		this.#gameboard.deployedFleet.forEach((shipName) =>
-			this.#showShip(shipName)
-		)
-	}
-
-	#showShip(shipName) {
+	#createShipDom(shipName) {
 		const shipObj = new ShipDom(
 			shipName,
 			...this.#gameboard.getShipPosition(shipName)
 		)
+		return shipObj
+	}
+
+	#showShip(shipObj) {
 		this.#div.append(shipObj.div)
+	}
+
+	#hideShip(shipObj) {
+		this.#div.removeChild(shipObj.div)
+	}
+
+	showDeployedFleet() {
+		console.log("PRE", ...this.#deployedFleetDom.keys())
+
+		this.#gameboard.deployedFleet.forEach((shipName) => {
+			let shipObj
+			if (!this.#deployedFleetDom.has(shipName)) {
+				shipObj = this.#createShipDom(shipName)
+				this.#deployedFleetDom.set(shipName, shipObj)
+			} else {
+				shipObj = this.#deployedFleetDom.get(shipName)
+			}
+
+			this.#showShip(shipObj)
+		})
+
+		console.log("POST", ...this.#deployedFleetDom.keys())
+	}
+
+	hideDeployedFleet() {
+		this.#deployedFleetDom.forEach((shipObj) => {
+			this.#hideShip(shipObj)
+		})
 	}
 
 	#initGameboardDiv(gameboard) {
