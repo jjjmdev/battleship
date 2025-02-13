@@ -1,7 +1,8 @@
 import PubSub from "pubsub-js"
+import { pubSubTokens } from "../pubSubTokens.js"
 import { initDiv } from "../utils/domComponents.js"
 import CellDom from "./CellDom.js"
-import { pubSubTokens } from "../pubSubTokens.js"
+import ShipDom from "./ShipDom.js"
 
 const blockName = "gameboard"
 const cssClass = {}
@@ -20,6 +21,19 @@ export default class GameboardDom {
 		this.#cells = new Map()
 		this.#div = this.#initGameboardDiv(gameboard)
 		this.#div.obj = this
+
+		const shipObj = new ShipDom([
+			[0, 0],
+			[0, 1],
+			[0, 2],
+		])
+		const shipObj2 = new ShipDom([
+			[1, 1],
+			[2, 1],
+			[3, 1],
+			[4, 1],
+		])
+		this.#div.append(shipObj.div, shipObj2.div)
 	}
 
 	// getters
