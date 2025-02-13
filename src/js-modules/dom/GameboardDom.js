@@ -22,17 +22,24 @@ export default class GameboardDom {
 		this.#div = this.#initGameboardDiv(gameboard)
 		this.#div.obj = this
 
-		const shipObj = new ShipDom([
-			[0, 0],
-			[0, 1],
-			[0, 2],
-		])
-		const shipObj2 = new ShipDom([
-			[1, 1],
-			[2, 1],
-			[3, 1],
-			[4, 1],
-		])
+		const shipObj = new ShipDom(
+			"ship_3a",
+			[
+				[0, 0],
+				[0, 1],
+				[0, 2],
+			],
+			"N"
+		)
+		const shipObj2 = new ShipDom(
+			"ship_3b",
+			[
+				[1, 1],
+				[2, 1],
+				[3, 1],
+			],
+			"E"
+		)
 		this.#div.append(shipObj.div, shipObj2.div)
 	}
 
