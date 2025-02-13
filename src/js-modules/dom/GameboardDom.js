@@ -22,25 +22,7 @@ export default class GameboardDom {
 		this.#div = this.#initGameboardDiv(gameboard)
 		this.#div.obj = this
 
-		const shipObj = new ShipDom(
-			"ship_3a",
-			[
-				[0, 0],
-				[0, 1],
-				[0, 2],
-			],
-			"N"
-		)
-		const shipObj2 = new ShipDom(
-			"ship_3b",
-			[
-				[1, 1],
-				[2, 1],
-				[3, 1],
-			],
-			"E"
-		)
-		this.#div.append(shipObj.div, shipObj2.div)
+		this.showDeployedFleet()
 	}
 
 	// getters
@@ -62,6 +44,20 @@ export default class GameboardDom {
 		this.#div.classList.add(aimingClass)
 		this.#attackCallback = this.#getAttackCoordsOnClickCallback.bind(this)
 		this.#div.addEventListener("click", this.#attackCallback)
+	}
+
+	showDeployedFleet() {
+		this.#gameboard.deployedFleet.forEach((shipName) =>
+			this.#showShip(shipName)
+		)
+	}
+
+	#showShip(shipName) {
+		const shipObj = new ShipDom(
+			shipName,
+			...this.#gameboard.getShipPosition(shipName)
+		)
+		this.#div.append(shipObj.div)
 	}
 
 	#initGameboardDiv(gameboard) {
