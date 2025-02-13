@@ -83,6 +83,11 @@ export default class GameboardDom {
 		// We need to retrieve the appropriate cell
 		const targetClassList = e.target.classList
 		if (![...targetClassList].includes("cell")) {
+			// Clicking the element underneath an overlay
+			const origDisplay = e.target.style.display
+			e.target.style.display = "none"
+			document.elementFromPoint(e.clientX, e.clientY).click()
+			e.target.style.display = origDisplay
 			return
 		}
 
