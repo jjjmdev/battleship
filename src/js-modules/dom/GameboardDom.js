@@ -16,6 +16,7 @@ export default class GameboardDom {
 	#attackCallback
 	#cells
 	#deployedFleetDom
+	#deployedFleetDomShown
 
 	constructor(gameboard) {
 		this.#gameboard = gameboard
@@ -24,11 +25,12 @@ export default class GameboardDom {
 		this.#div.obj = this
 
 		this.#deployedFleetDom = new Map()
+		this.#deployedFleetDomShown = false
 
 		// Temporary code for testing
 		this.showDeployedFleet()
-		this.hideDeployedFleet()
-		this.showDeployedFleet()
+		this.toggleDeployedFleet()
+		this.toggleDeployedFleet()
 	}
 
 	// getters
@@ -83,6 +85,7 @@ export default class GameboardDom {
 			this.#showShip(shipObj)
 		})
 
+		this.#deployedFleetDomShown = true
 		console.log("POST", ...this.#deployedFleetDom.keys())
 	}
 
@@ -90,6 +93,15 @@ export default class GameboardDom {
 		this.#deployedFleetDom.forEach((shipObj) => {
 			this.#hideShip(shipObj)
 		})
+		this.#deployedFleetDomShown = false
+	}
+
+	toggleDeployedFleet() {
+		if (this.#deployedFleetDomShown) {
+			this.hideDeployedFleet()
+		} else {
+			this.showDeployedFleet()
+		}
 	}
 
 	#initGameboardDiv(gameboard) {
