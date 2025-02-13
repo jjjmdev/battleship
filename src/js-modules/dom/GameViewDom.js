@@ -1,6 +1,8 @@
+import PubSub from "pubsub-js"
 import { initDiv, initP } from "../utils/domComponents.js"
 import initMainHeader from "./initMainHeader.js"
 import PlayerDom from "./PlayerDom.js"
+import { pubSubTokens } from "../pubSubTokens.js"
 
 const blockName = "game"
 const cssClass = {
@@ -19,6 +21,15 @@ export default class GameViewDom {
 		this.#playersDom = [new PlayerDom(player1), new PlayerDom(player2)]
 		this.#div = initGameViewDiv(...this.#playersDom)
 		this.#div.obj = this
+
+		PubSub.subscribe(
+			pubSubTokens.playersSwitch,
+			(token, { player, isAIPlayer }) => {
+				this.currentPlayer = player
+				this.isAIPlayer = isAIPlayer
+				console.log("SWITCH")
+			}
+		)
 	}
 
 	// Getters

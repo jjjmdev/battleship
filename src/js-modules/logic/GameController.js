@@ -43,10 +43,20 @@ export default class GameController {
 			this.#current = this.#player2
 			this.#opponent = this.#player1
 		}
+
+		PubSub.publish(pubSubTokens.playersSwitch, {
+			player: this.#current,
+			isAIPlayer: this.#isAIPlayer(),
+		})
 	}
 
 	#switchCurrentPlayer() {
 		;[this.#current, this.#opponent] = [this.#opponent, this.#current]
+
+		PubSub.publish(pubSubTokens.playersSwitch, {
+			player: this.#current,
+			isAIPlayer: this.#isAIPlayer(),
+		})
 	}
 
 	#isAIPlayer() {

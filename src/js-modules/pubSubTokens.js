@@ -6,6 +6,7 @@ export const pubSubTokens = {
 	playTurn: "PLAY TURN",
 	attackCoordsAcquired: "ATTACK COORDS ACQUIRED",
 	attackOutcomeShown: "ATTACK OUTCOME SHOWN",
+	playersSwitch: "PLAYERS SWITCH",
 }
 
 export const pubSubTopicUi = "ui"
