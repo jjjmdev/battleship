@@ -16,6 +16,7 @@ export default class Gameboard {
 	#deployedFleet
 	#notDeployedFleet
 	#sunkFleet
+	#fleetPosition
 
 	constructor(nCols, nRows = nCols) {
 		this.#nCols = nCols
@@ -33,6 +34,7 @@ export default class Gameboard {
 		this.#deployedFleet = new Map()
 		this.#notDeployedFleet = new Map()
 		this.#sunkFleet = new Map()
+		this.#fleetPosition = new Map()
 	}
 
 	get size() {
@@ -97,6 +99,7 @@ export default class Gameboard {
 
 		const ship = new Ship(length)
 		this.#notDeployedFleet.set(name, ship)
+		this.#fleetPosition.set(name, null)
 	}
 
 	hasShip(name) {
@@ -151,9 +154,10 @@ export default class Gameboard {
 
 		let [cCurrent, rCurrent] = [cStart, rStart]
 		let counter = 0
+		const cellsCoords = []
 		while (counter < ship.length) {
 			this.#cells[cCurrent][rCurrent].placeShip(ship)
-
+			cellsCoords.push([cCurrent, rCurrent])
 			cCurrent += cDisp
 			rCurrent += rDisp
 
@@ -162,6 +166,11 @@ export default class Gameboard {
 
 		this.#notDeployedFleet.delete(name)
 		this.#deployedFleet.set(name, ship)
+		this.#fleetPosition.set(name, [cellsCoords, direction])
+	}
+
+	getShipPosition(shipName) {
+		return this.#fleetPosition.get(shipName)
 	}
 
 	receiveAttack([c, r]) {
