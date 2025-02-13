@@ -6,7 +6,6 @@ export default class ShipDom extends PlaceableObjectDom {
 	static zIndex = 1
 
 	constructor(name, cellsCoords, direction) {
-		console.log(cellsCoords)
 		super(cellsCoords)
 
 		this.#applyStyle(name, direction)
