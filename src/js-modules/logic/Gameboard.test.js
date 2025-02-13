@@ -9,36 +9,27 @@ describe("Gameboard class", () => {
 	const shipLen1 = 4
 	const shipName2 = "My second ship"
 	const shipLen2 = 3
-
-	const sampleShipCoordsArrIn = [
-		[[1, 3], "N"],
-		[[1, 3], "E"],
-		[[1, 3], "S"],
-	]
-
-	const sampleShipCoordsArrOut = [
-		[[1, 3], "W"],
-		[[-1, 0], "E"],
-		[[-1, 0], "W"],
-	]
-
-	const sampleCellCoordsArrIn = [
-		[0, 0],
-		[3, 6],
-		[nCols - 1, nRows - 1],
-	]
-	const sampleCellCoordsArrOut = [
-		[nCols, nRows],
-		[nCols, 0],
-		[0, nRows],
-		[-1, -1],
-	]
+	const shipName3 = "My third ship"
+	const shipLen3 = 2
 
 	it("is defined", () => {
 		expect(Gameboard).toBeDefined()
 	})
 
 	describe("board handling", () => {
+		const sampleCellCoordsArrIn = [
+			[0, 0],
+			[3, 6],
+			[nCols - 1, nRows - 1],
+		]
+
+		const sampleCellCoordsArrOut = [
+			[nCols, nRows],
+			[nCols, 0],
+			[0, nRows],
+			[-1, -1],
+		]
+
 		it("has a size", () => {
 			expect(gameboard.size).toEqual([nCols, nRows])
 			expect(gameboard.nCols).toBe(nCols)
@@ -71,6 +62,19 @@ describe("Gameboard class", () => {
 	})
 
 	describe("fleet handling", () => {
+		const sampleShipCoordsArrIn = [
+			[[1, 3], "N"],
+			[[1, 3], "E"],
+			[[1, 3], "S"],
+		]
+		const shipCoords1 = sampleShipCoordsArrIn[0]
+		const shipCellsCoords1 = [
+			[1, 3],
+			[1, 2],
+			[1, 1],
+			[1, 0],
+		]
+
 		it("has a fleet property that can be used to retrieve current ships", () => {
 			expect(gameboard.fleet).toEqual([])
 		})
@@ -98,22 +102,14 @@ describe("Gameboard class", () => {
 		})
 
 		it("can place a Ship in the board", () => {
-			const sampleCoordsIn = sampleShipCoordsArrIn[0]
-			const calculatedShipCells = [
-				[1, 3],
-				[1, 2],
-				[1, 1],
-				[1, 0],
-			]
-
-			gameboard.placeShip(shipName1, ...sampleCoordsIn)
+			gameboard.placeShip(shipName1, ...shipCoords1)
 
 			// Check ALL cells: Only the ones occupied by the ship should be occupied by a ship
 			for (let c = 0; c < nCols; c++) {
 				for (let r = 0; r < nRows; r++) {
 					const cell = gameboard.getCell([c, r])
 					if (
-						calculatedShipCells.some(
+						shipCellsCoords1.some(
 							(coords) => coords[0] === c && coords[1] === r
 						)
 					) {
@@ -157,11 +153,23 @@ describe("Gameboard class", () => {
 			const sampleShipCoords = [[3, 7], "N"]
 			expect(gameboard.canPlaceShip(shipName1, ...sampleShipCoords)).toBeFalsy()
 		})
+
+		it("can return the coordinates of the deployed or sunk fleet, and null for the not deployed fleet", () => {
+			expect(gameboard.getShipPosition(shipName1)).toEqual([
+				shipCellsCoords1, // cells coordinates
+				shipCoords1[1], // ship direction
+			])
+
+			gameboard.addShip(shipName3, shipLen3)
+			expect(gameboard.getShipPosition(shipName3)).toEqual(null)
+		})
 	})
 
 	describe("attack handling", () => {
+		const shipCoords2 = [[3, 1], "S"]
+
 		it("can receive attack in a cell of the board", () => {
-			const sampleCoordsHit = sampleShipCoordsArrIn[0][0]
+			const sampleCoordsHit = [1, 3]
 			const sampleCoordsMiss = [0, 0]
 
 			expect(gameboard.getCell(sampleCoordsHit).hasBeenAttacked()).toBeFalsy()
@@ -216,7 +224,9 @@ describe("Gameboard class", () => {
 			// the following must still be true
 			expect(gameboard.hasShip(shipName1)).toBeTruthy()
 
-			expect(gameboard.fleet.sort()).toEqual([shipName1, shipName2].sort())
+			expect(gameboard.fleet.sort()).toEqual(
+				[shipName1, shipName2, shipName3].sort()
+			)
 		})
 
 		it("checks if there are deployed ships", () => {
@@ -234,7 +244,7 @@ describe("Gameboard class", () => {
 		})
 
 		it("returns an outcome code when receiving an attack", () => {
-			gameboard.placeShip(shipName2, [3, 1], "S")
+			gameboard.placeShip(shipName2, ...shipCoords2)
 			// attacking these cells (not attacked yet) produces, respectively,
 			// a miss, a hit, and a hit and sink
 			expect(gameboard.receiveAttack([3, 0])).toEqual(0)
