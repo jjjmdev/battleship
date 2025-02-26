@@ -17,4 +17,6 @@ export const pubSubTokensUi = {
 	shipHasSunk: (player) => `ui: ${player.name} SHIP HAS SUNK`,
 	toggleDeployedFleetShown: (player) =>
 		`ui: TOGGLE DEPLOYED FLEET ON ${player.name} GAMEBOARD`,
+	hideDeployedFleetShown: (player) =>
+		`ui: HIDE DEPLOYED FLEET ON ${player.name} GAMEBOARD`,
 }

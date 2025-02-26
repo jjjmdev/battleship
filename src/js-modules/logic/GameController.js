@@ -9,10 +9,13 @@ export default class GameController {
 	#current // Current player turn
 	#opponent // Next player turn
 
+	#versusAi
+
 	constructor(player1Name, player2Name, versusAi = true) {
 		this.#player1 = this.#initPlayer(player1Name)
 		this.#player2 = this.#initPlayer(player2Name, versusAi)
 
+		this.#versusAi = versusAi
 		this.#initGame()
 	}
 
@@ -57,6 +60,10 @@ export default class GameController {
 			player: this.#current,
 			isAIPlayer: this.#isAIPlayer(),
 		})
+
+		if (!this.#versusAi) {
+			PubSub.publish(pubSubTokensUi.hideDeployedFleetShown(this.#opponent))
+		}
 	}
 
 	#isAIPlayer() {
