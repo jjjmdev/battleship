@@ -10,7 +10,7 @@ export default function initWebpage() {
 
 	PubSub.subscribe(pubSubTokens.initGameView, renderGameViewDom)
 
-	const gameController = new GameController(player1Name, player2Name, versusAi)
+	new GameController(player1Name, player2Name, versusAi)
 }
 
 function renderGameViewDom(token, { player1, player2 }) {

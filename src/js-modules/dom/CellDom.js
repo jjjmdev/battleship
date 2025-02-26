@@ -1,8 +1,6 @@
 const { initDiv } = require("../utils/domComponents.js")
 
 const blockName = "cell"
-const cssClass = {}
-const getCssClass = (element) => `${blockName}__${cssClass[element]}`
 
 export default class CellDom {
 	#cell
