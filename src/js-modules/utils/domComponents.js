@@ -49,12 +49,14 @@ export function initP(className = null, text = "") {
 export function initButton(
 	className = null,
 	clickCallback = () => {},
-	type = "button"
+	type = "button",
+	textContent
 ) {
 	const element = document.createElement("button")
 	applyClass(element, className)
 	element.addEventListener("click", clickCallback)
 	element.type = type
+	element.textContent = textContent
 	return element
 }
 

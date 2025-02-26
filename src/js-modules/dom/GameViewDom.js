@@ -1,8 +1,8 @@
 import PubSub from "pubsub-js"
-import { initDiv, initP } from "../utils/domComponents.js"
+import { initDiv, initP, initButton } from "../utils/domComponents.js"
 import initMainHeader from "./initMainHeader.js"
 import PlayerDom from "./PlayerDom.js"
-import { pubSubTokens } from "../pubSubTokens.js"
+import { pubSubTokens, pubSubTokensUi } from "../pubSubTokens.js"
 
 const blockName = "game"
 const cssClass = {
@@ -16,11 +16,19 @@ const getCssClass = (element) => `${blockName}__${cssClass[element]}`
 export default class GameViewDom {
 	#div
 	#playersDom
+	#currentPlayer
+	#showCurrentPlayerDeployedFleetCallbackBinded
 
 	constructor(player1, player2) {
+		this.#showCurrentPlayerDeployedFleetCallbackBinded =
+			this.#showCurrentPlayerDeployedFleetCallback.bind(this)
+
 		this.#playersDom = [new PlayerDom(player1), new PlayerDom(player2)]
-		this.#div = initGameViewDiv(...this.#playersDom)
+		this.#div = this.#initGameViewDiv(...this.#playersDom)
 		this.#div.obj = this
+
+		// Temporary
+		this.#currentPlayer = player1
 
 		PubSub.subscribe(
 			pubSubTokens.playersSwitch,
@@ -36,28 +44,44 @@ export default class GameViewDom {
 	get div() {
 		return this.#div
 	}
-}
 
-function initGameViewDiv(player1Dom, player2Dom) {
-	const div = initDiv(blockName)
-	const playersDiv = initDiv(getCssClass("playersDiv"))
+	#initGameViewDiv(player1Dom, player2Dom) {
+		const div = initDiv(blockName)
+		const playersDiv = initDiv(getCssClass("playersDiv"))
 
-	const header = initMainHeader()
+		const header = initMainHeader()
+		const toggleBtn = this.#initToggleFleetBtn()
+		header.append(toggleBtn)
 
-	const player1Div = initDiv(getCssClass("playerDiv"))
-	player1Div.append(player1Dom.div)
-	const player2Div = initDiv(getCssClass("playerDiv"))
-	player2Div.append(player2Dom.div)
+		const player1Div = initDiv(getCssClass("playerDiv"))
+		player1Div.append(player1Dom.div)
+		const player2Div = initDiv(getCssClass("playerDiv"))
+		player2Div.append(player2Dom.div)
 
-	playersDiv.append(player1Div, player2Div)
-	const msgP = initGameMsg()
+		playersDiv.append(player1Div, player2Div)
+		const msgP = this.#initGameMsg()
 
-	div.append(header, playersDiv, msgP)
+		div.append(header, playersDiv, msgP)
 
-	return div
-}
+		return div
+	}
 
-function initGameMsg() {
-	const msg = "A message to show game status"
-	return initP(getCssClass("msgP"), msg)
+	#initGameMsg() {
+		const msg = "A message to show game status"
+		return initP(getCssClass("msgP"), msg)
+	}
+
+	#initToggleFleetBtn() {
+		const btn = initButton(
+			"btn",
+			this.#showCurrentPlayerDeployedFleetCallbackBinded,
+			null,
+			"Toggle Fleet"
+		)
+		return btn
+	}
+
+	#showCurrentPlayerDeployedFleetCallback() {
+		PubSub.publish(pubSubTokensUi.toggleDeployedFleetShown(this.#currentPlayer))
+	}
 }

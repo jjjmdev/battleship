@@ -71,8 +71,6 @@ export default class GameboardDom {
 	}
 
 	showDeployedFleet() {
-		console.log("PRE", ...this.#deployedFleetDom.keys())
-
 		this.#gameboard.deployedFleet.forEach((shipName) => {
 			let shipObj
 			if (!this.#deployedFleetDom.has(shipName)) {
@@ -86,7 +84,6 @@ export default class GameboardDom {
 		})
 
 		this.#deployedFleetDomShown = true
-		console.log("POST", ...this.#deployedFleetDom.keys())
 	}
 
 	hideDeployedFleet() {

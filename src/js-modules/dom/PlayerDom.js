@@ -34,6 +34,10 @@ export default class PlayerDom {
 			pubSubTokensUi.showAttackOutcome(player),
 			this.#showAttackOutcome.bind(this)
 		)
+
+		PubSub.subscribe(pubSubTokensUi.toggleDeployedFleetShown(player), () =>
+			this.#gameboardDiv.obj.toggleDeployedFleet()
+		)
 	}
 
 	get player() {
