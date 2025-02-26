@@ -97,7 +97,7 @@ export default class Gameboard {
 			throw new Error("The ship is already in the fleet")
 		}
 
-		const ship = new Ship(length)
+		const ship = new Ship(length, name)
 		this.#notDeployedFleet.set(name, ship)
 		this.#fleetPosition.set(name, null)
 	}
@@ -188,7 +188,7 @@ export default class Gameboard {
 		if (isHit) {
 			if (ship.isSunk()) {
 				// get the name of the ship
-				const name = getMapKey(this.#deployedFleet, ship)
+				const name = ship.name
 				this.#sunkFleet.set(name, ship)
 				this.#deployedFleet.delete(name)
 				return 2
@@ -211,12 +211,4 @@ export default class Gameboard {
 	hasNotDeployedShips() {
 		return this.#notDeployedFleet.size > 0
 	}
-}
-
-function getMapKey(map, val) {
-	for (const [key, value] of map.entries()) {
-		if (value === val) return key
-	}
-
-	return null
 }
