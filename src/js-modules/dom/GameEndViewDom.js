@@ -6,6 +6,8 @@ import {
 	initH2,
 } from "../utils/domComponents.js"
 import { getGameEndMessage } from "../messages.js"
+import { pubSubTokens } from "../pubSubTokens.js"
+import PubSub from "pubsub-js"
 
 const blockName = "game-end"
 const cssClass = {
@@ -68,6 +70,6 @@ export default class GameEndViewDom {
 	}
 
 	#initPlayAgainCallback() {
-		console.log("PLAY AGAIN, todo")
+		PubSub.publish(pubSubTokens.showHomeView)
 	}
 }

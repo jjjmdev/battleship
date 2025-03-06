@@ -1,3 +1,8 @@
+const home = [
+	"BATTLESHIP",
+	"Fair winds and following seas! Until next battle...",
+]
+
 const gameEnd = {
 	win1: ["VICTORY!", "Your fleet sails victorious across the seven seas!"],
 	defeat1: ["GAME OVER!", "Your fleet has been reclaimed by the sea..."],
@@ -22,4 +27,8 @@ export function getGameEndMessage(
 	} else {
 		return gameEnd.win2(winnerPlayerName, defeatedPlayerName)
 	}
+}
+
+export function getHomeViewMessage() {
+	return home
 }
