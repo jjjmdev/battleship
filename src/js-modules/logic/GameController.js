@@ -87,7 +87,7 @@ export default class GameController {
 			this.#playGame.bind(this)
 		)
 
-		PubSub.publish(pubSubTokens.initGameView, {
+		PubSub.publish(pubSubTokens.showGameView, {
 			player1: this.#player1,
 			player2: this.#player2,
 		})
@@ -205,6 +205,13 @@ export default class GameController {
 			this.#consoleLogMessage("endGame")
 			PubSub.unsubscribe(pubSubTokens.playTurn)
 			PubSub.unsubscribe(pubSubTopicUi) // remove all UI PubSub subscriptions
+
+			PubSub.publish(pubSubTokens.showGameEndView, {
+				winnerPlayerName: this.#current.name,
+				defeatedPlayerName: this.#opponent.name,
+				versusAi: this.#versusAi,
+				isWinnerAi: this.#isAIPlayer(),
+			})
 			return
 		}
 

@@ -1,7 +1,8 @@
 import PubSub from "pubsub-js"
 
 export const pubSubTokens = {
-	initGameView: "INIT GAME VIEW",
+	showGameView: "SHOW GAME VIEW",
+	showGameEndView: "SHOW GAME END VIEW",
 	gameViewInitialized: "GAME VIEW INITIALIZED",
 	playTurn: "PLAY TURN",
 	attackCoordsAcquired: "ATTACK COORDS ACQUIRED",

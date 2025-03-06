@@ -20,8 +20,6 @@ export default class PlaceableObjectDom {
 	}
 
 	#setGridLocation(div, cellsCoords) {
-		console.log(cellsCoords)
-
 		const minCol = cellsCoords.reduce(
 			(min, item) => (item[0] < min ? item[0] : min),
 			cellsCoords[0][0]
