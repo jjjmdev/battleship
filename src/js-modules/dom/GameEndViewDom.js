@@ -29,6 +29,14 @@ export default class GameEndViewDom {
 		)
 
 		this.#div = this.#initGameViewDiv(title, subtitle)
+
+		const typeOfWinnerClass = versusAi
+			? isWinnerAi
+				? "defeated-1p"
+				: "winner-1p"
+			: "winner-2p"
+
+		this.#div.classList.add(typeOfWinnerClass)
 	}
 
 	// getters
