@@ -27,15 +27,17 @@ export function initH1(className = null, text = "") {
 	return element
 }
 
-export function initH2(className = null) {
+export function initH2(className = null, text = "") {
 	const element = document.createElement("h2")
 	applyClass(element, className)
+	element.textContent = text
 	return element
 }
 
-export function initH3(className = null) {
+export function initH3(className = null, text = "") {
 	const element = document.createElement("h3")
 	applyClass(element, className)
+	element.textContent = text
 	return element
 }
 
