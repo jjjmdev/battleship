@@ -6,6 +6,8 @@ import {
 	initHeader,
 } from "../utils/domComponents.js"
 import { getHomeViewMessage } from "../messages.js"
+import { pubSubTokens } from "../pubSubTokens.js"
+import PubSub from "pubsub-js"
 
 const blockName = "home"
 const cssClass = {
@@ -61,7 +63,7 @@ export default class HomeViewDom {
 	}
 
 	#initPlay1PlayerCallback() {
-		console.log("PLAY WITH 1 PLAYER")
+		PubSub.publish(pubSubTokens.showPlayersNameView, { versusAi: true })
 	}
 
 	#initPlay2Players() {
@@ -75,6 +77,6 @@ export default class HomeViewDom {
 	}
 
 	#initPlay2PlayersCallback() {
-		console.log("PLAY WITH 2 PLAYERS")
+		PubSub.publish(pubSubTokens.showPlayersNameView, { versusAi: false })
 	}
 }
