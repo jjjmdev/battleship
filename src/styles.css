@@ -42,14 +42,15 @@
 	--txt-fontsize: 18px;
 	--txt-lineheight: 1;
 	--h1-fontsize: 1.2;
-	--player-h3-fontsize: 1rem;
 	--msg-fontsize: 1rem;
 	--title-fontsize: 3.2rem;
 	--subtitle-fontsize: 1.2rem;
 	--button-fontsize: 1.5rem;
-	--player-name-fontsize: 2rem;
 	--player-title-fontsize: 1.5rem;
 	--player-vs-fontsize: 1.5rem;
+	--player-fontsize: 1rem;
+	--player-name-fontsize: 1.2rem;
+	--game-button-fontsize: 1rem;
 
 	--fix-font-padding-bottom: 5px;
 
@@ -269,24 +270,31 @@ button {
 	gap: var(--page-gap);
 }
 
+.game,
 .game__players-div {
 	gap: var(--players-gap);
 }
 
+@media only screen and (orientation: landscape) {
+	.game {
+		gap: var(--page-gap);
+	}
+}
+
 /* Custom Header style */
-.header__h1 {
+.game__header {
+	display: flex;
+	justify-content: center;
+}
+
+.game__header button {
 	text-align: center;
-	font-size: var(--h1-fontsize);
+	font-size: var(--game-button-fontsize);
 }
 
 /* Custom gameboard style */
 .gameboard {
 	padding: var(--shadow-len);
-}
-
-/* Custom player style */
-.player__player-h3 {
-	font-size: var(--player-h3-fontsize);
 }
 
 /* Custom cell style */
@@ -361,7 +369,7 @@ button {
 	color: var(--col-grey);
 }
 
-.players-name__player-name-input:focus {
+.players-name__player-name-input:feocus {
 	border-bottom-color: var(--col-txt-accent);
 }
 
@@ -422,6 +430,10 @@ body:has(.players-name) {
 	background-image: url("./assets/images/backgrounds/home.jpg");
 }
 
+body:has(.game) {
+	background-image: url("./assets/images/backgrounds/battle.jpg");
+}
+
 .hit-mark {
 	background-image: url("./assets/images/hit_miss_marks/hit.png");
 	filter: drop-shadow(0 0 var(--shadow-len-mark) var(--cell-hit-col));
@@ -432,11 +444,28 @@ body:has(.players-name) {
 	filter: drop-shadow(0 0 var(--shadow-len-mark) var(--cell-miss-col));
 }
 
+/* Players info */
+.player__player-h3 {
+	color: var(--col-txt-alt);
+	text-shadow: 0 var(--shadow-len-txt) var(--shadow-len-txt) var(--col-txt);
+	font-weight: normal;
+	padding-bottom: var(--fix-font-padding-bottom);
+	font-size: var(--player-fontsize);
+}
+
+.player__name-span {
+	font-weight: bold;
+	font-family: var(--accent-font);
+	font-size: var(--player-name-fontsize);
+}
+
 /* Custom msg p style */
 .game__msg-p {
 	text-align: center;
 	font-size: var(--msg-fontsize);
 	text-wrap: pretty;
+	color: var(--col-txt-alt);
+	text-shadow: 0 var(--shadow-len-txt) var(--shadow-len-txt) var(--col-txt);
 }
 
 /* Ships */

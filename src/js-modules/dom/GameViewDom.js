@@ -1,11 +1,16 @@
 import PubSub from "pubsub-js"
-import { initDiv, initP, initButton } from "../utils/domComponents.js"
-import initMainHeader from "./initMainHeader.js"
+import {
+	initDiv,
+	initP,
+	initButton,
+	initHeader,
+} from "../utils/domComponents.js"
 import PlayerDom from "./PlayerDom.js"
 import { pubSubTokens, pubSubTokensUi } from "../pubSubTokens.js"
 
 const blockName = "game"
 const cssClass = {
+	header: "header",
 	playersDiv: "players-div",
 	playerDiv: "player-div",
 	msgP: "msg-p",
@@ -49,9 +54,7 @@ export default class GameViewDom {
 		const div = initDiv(blockName)
 		const playersDiv = initDiv(getCssClass("playersDiv"))
 
-		const header = initMainHeader()
-		const toggleBtn = this.#initToggleFleetBtn()
-		header.append(toggleBtn)
+		const header = this.#initHeader()
 
 		const player1Div = initDiv(getCssClass("playerDiv"))
 		player1Div.append(player1Dom.div)
@@ -66,6 +69,13 @@ export default class GameViewDom {
 		return div
 	}
 
+	#initHeader() {
+		const header = initHeader(getCssClass("header"))
+		const toggleBtn = this.#initToggleFleetBtn()
+		header.append(toggleBtn)
+		return header
+	}
+
 	#initGameMsg() {
 		const msg = "A message to show game status"
 		return initP(getCssClass("msgP"), msg)
@@ -76,7 +86,7 @@ export default class GameViewDom {
 			"btn",
 			this.#showCurrentPlayerDeployedFleetCallbackBinded,
 			null,
-			"Toggle Fleet"
+			"Toggle My Fleet"
 		)
 		return btn
 	}
