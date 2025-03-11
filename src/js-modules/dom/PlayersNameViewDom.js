@@ -82,7 +82,7 @@ export default class PlayersNameViewDom {
 		const playersCntDiv = initDiv(getCssClass("playersCntDiv"))
 
 		const player1Div = this.#initPlayerNameDiv(defaultData.player1)
-		const vsP = initP(getCssClass("vsP"), "vs")
+		const vsP = initP(getCssClass("vsP"), "VS")
 		const player2Div = this.#versusAi
 			? this.#initAiPlayerNameDiv(defaultData.aiPlayer)
 			: this.#initPlayerNameDiv(defaultData.player2)
