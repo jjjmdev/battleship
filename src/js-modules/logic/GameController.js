@@ -159,9 +159,9 @@ export default class GameController {
 		return { isHit, isSunk, isWin, sunkShip }
 	}
 
-	#applyPostAttackActions(coords) {
+	#applyPostAttackActions(coords, outcome) {
 		if (this.#isAIPlayer()) {
-			this.#current.applyPostAttackActions(coords)
+			this.#current.applyPostAttackActions(coords, outcome)
 		} else {
 			// todo
 		}
@@ -216,7 +216,7 @@ export default class GameController {
 		}
 
 		// Perform post-attack actions
-		this.#applyPostAttackActions(coords)
+		this.#applyPostAttackActions(coords, outcome)
 		// Pass turn to opponent
 		this.#switchCurrentPlayer()
 

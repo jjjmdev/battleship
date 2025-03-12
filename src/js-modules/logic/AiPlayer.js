@@ -2,6 +2,7 @@ import Player from "./Player.js"
 import { randomInt } from "../utils/math.js"
 
 const defaultSkills = "random"
+const arr2str = (arr) => arr.join(",")
 
 export default class AiPlayer extends Player {
 	#possibleTargets
@@ -24,9 +25,15 @@ export default class AiPlayer extends Player {
 	}
 
 	#initPossibleTargets() {
-		this.#possibleTargets = new Set(
-			this.gameboard.cells.flat().map((cell) => cell.coords)
+		this.#possibleTargets = new Map(
+			this.gameboard.cells
+				.flat()
+				.map((cell) => [arr2str(cell.coords), cell.coords])
 		)
+		// [[3, 2], [2, 1]]
+		// [["3,2", [3, 2]], [["2,1"], [2, 1]]]
+		// this.#possibleTargets.set("3,2", [3, 2])
+		// this.#possibleTargets.set("2,1", [2, 1])
 	}
 
 	#initPlayerSkills() {
@@ -43,11 +50,11 @@ export default class AiPlayer extends Player {
 		return this.#getOpponentTargetCellCoords()
 	}
 
-	applyPostAttackActions(cellCoords, otherData = {}) {
+	applyPostAttackActions(cellCoords, outcome = {}) {
 		// this is a wrapper and allows to use different strategies in the future
 		// implementations using the same interface: todo
-		// otherData is set as argument for future improvements
-		return this.#applyPostAttackActions(cellCoords, otherData)
+		// outcome is set as argument for future improvements
+		return this.#applyPostAttackActions(cellCoords, outcome)
 	}
 
 	/* random strategy */
@@ -56,12 +63,11 @@ export default class AiPlayer extends Player {
 			throw new Error("There are no possible opponent targets")
 		}
 
-		return Array.from(this.#possibleTargets)[
-			randomInt(0, this.#possibleTargets.size - 1)
-		]
+		const idx = randomInt(0, this.#possibleTargets.size - 1)
+		return Array.from(this.#possibleTargets.values())[idx]
 	}
 
 	#applyPostAttackActionsRandom(cellCoords) {
-		this.#possibleTargets.delete(cellCoords)
+		this.#possibleTargets.delete(arr2str(cellCoords))
 	}
 }
