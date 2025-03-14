@@ -26,6 +26,11 @@ export default class PlayerDom {
 		this.#div.obj = this
 
 		PubSub.subscribe(
+			pubSubTokensUi.setCurrentPlayer(player),
+			this.#markCurrentPlayer.bind(this)
+		)
+
+		PubSub.subscribe(
 			pubSubTokensUi.enableAimingOnGameboard(player),
 			this.#enableAimingOnGameboard.bind(this)
 		)
@@ -94,6 +99,14 @@ export default class PlayerDom {
 
 		h3.append(nameSpan, dividerSpan, deployedFleetSizeSpan, textShipSpan)
 		return h3
+	}
+
+	#markCurrentPlayer(token, currentPlayer) {
+		if (currentPlayer) {
+			this.#div.classList.add("currentPlayer")
+		} else {
+			this.#div.classList.remove("currentPlayer")
+		}
 	}
 
 	#enableAimingOnGameboard() {

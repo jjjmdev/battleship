@@ -453,6 +453,17 @@ body:has(.game) {
 	font-size: var(--player-fontsize);
 }
 
+.currentPlayer .player__name-span {
+	background: var(--orange-gradient);
+	-webkit-background-clip: text;
+	background-clip: text;
+	color: transparent;
+	filter: drop-shadow(
+		0 var(--shadow-len-txt) var(--shadow-len-txt) var(--col-txt)
+	);
+	text-shadow: none;
+}
+
 .player__name-span {
 	font-weight: bold;
 	font-family: var(--accent-font);

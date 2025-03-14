@@ -38,7 +38,7 @@ export default class GameViewDom {
 		PubSub.subscribe(
 			pubSubTokens.playersSwitch,
 			(token, { player, isAIPlayer }) => {
-				this.currentPlayer = player
+				this.#currentPlayer = player
 				this.isAIPlayer = isAIPlayer
 				console.log("SWITCH")
 			}

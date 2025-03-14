@@ -1,6 +1,7 @@
 import Player from "./Player.js"
 import AiPlayer from "./AiPlayer.js"
 import PubSub from "pubsub-js"
+import { randomInt } from "../utils/math.js"
 import { pubSubTokens, pubSubTokensUi, pubSubTopicUi } from "../pubSubTokens.js"
 
 export default class GameController {
@@ -38,13 +39,17 @@ export default class GameController {
 	}
 
 	#initCurrentPlayer() {
-		// Random
-		if (Math.random() < 0.5) {
+		// Randomly select the first player
+		if (randomInt(0, 1) == 0) {
 			this.#current = this.#player1
 			this.#opponent = this.#player2
 		} else {
 			this.#current = this.#player2
 			this.#opponent = this.#player1
+		}
+
+		if (this.#versusAi) {
+			PubSub.publish(pubSubTokensUi.toggleDeployedFleetShown(this.#player1))
 		}
 
 		PubSub.publish(pubSubTokens.playersSwitch, {
@@ -108,6 +113,9 @@ export default class GameController {
 
 	#playTurn() {
 		this.#consoleLogMessage("startTurn")
+
+		PubSub.publish(pubSubTokensUi.setCurrentPlayer(this.#current), true)
+		PubSub.publish(pubSubTokensUi.setCurrentPlayer(this.#opponent), false)
 
 		// First, subscribe to the token that perform the attack
 		// when its coords are acquired
