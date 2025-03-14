@@ -70,6 +70,26 @@ export default class Gameboard {
 		return this.#cells
 	}
 
+	get deployedFleetAsShipObj() {
+		return [...this.#deployedFleet.values()]
+	}
+
+	get notDeployedFleetAsShipObj() {
+		return [...this.#notDeployedFleet.values()]
+	}
+
+	get sunkFleetAsShipObj() {
+		return [...this.#sunkFleet.values()]
+	}
+
+	get fleetAsShipObj() {
+		return [
+			...this.deployedFleetAsShipObj,
+			...this.notDeployedFleetAsShipObj,
+			...this.sunkFleetAsShipObj,
+		]
+	}
+
 	static getAllDirections() {
 		return Object.keys(directionDisplacement)
 	}
