@@ -1,4 +1,5 @@
 import Gameboard from "./Gameboard.js"
+import Ship from "./Ship.js"
 
 describe("Gameboard class", () => {
 	const nCols = 5
@@ -142,6 +143,20 @@ describe("Gameboard class", () => {
 		it("can check if a ship is already in the deployed fleet", () => {
 			expect(gameboard.hasDeployedShip(shipName1)).toBeTruthy()
 			expect(gameboard.hasDeployedShip(shipName2)).toBeFalsy()
+		})
+
+		it("can retrieve the deployed/not deployed/sunk/fleet Ship object", () => {
+			expect(gameboard.deployedFleetAsShipObj).toEqual([
+				new Ship(shipName1, shipLen1),
+			])
+			expect(gameboard.notDeployedFleetAsShipObj).toEqual([
+				new Ship(shipName2, shipLen2),
+			])
+			expect(gameboard.sunkFleetAsShipObj).toEqual([])
+			expect(gameboard.fleetAsShipObj).toEqual([
+				new Ship(shipName1, shipLen1),
+				new Ship(shipName2, shipLen2),
+			])
 		})
 
 		it("can check if a ship is already in the not deployed fleet", () => {
