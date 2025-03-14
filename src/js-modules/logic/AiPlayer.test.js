@@ -27,16 +27,13 @@ describe("AiPlayer class", () => {
 		it("has a name", () => {
 			expect(aiPlayer.name).toBe(playerName)
 		})
-
 		it("has a gameboard", () => {
 			expect(aiPlayer.gameboard).toEqual(new Gameboard(sizeGameboard))
 		})
-
 		it("has a fleet", () => {
 			expect(aiPlayer.gameboard.fleet).toEqual(fleetNames)
 			expect(aiPlayer.gameboard.notDeployedFleet).toEqual(fleetNames)
 		})
-
 		it("can randomly place the (not deployed) fleet on the board", () => {
 			aiPlayer.randomShipsPlacement()
 			expect(aiPlayer.gameboard.fleet).toEqual(fleetNames)
@@ -132,6 +129,49 @@ describe("AiPlayer class", () => {
 
 			// For the random strategy, this should give [0, 2],
 			// but using the huntTarget strategy it gives [1, 0] (high priority)
+			randomInt.mockImplementation(() => 1)
+			const cellCoords3 = aiPlayer.getOpponentTargetCellCoords()
+			const isHit3 = opponentPlayer.gameboard.receiveAttack(cellCoords3) > 0
+			aiPlayer.applyPostAttackActions(cellCoords3, { isHit: isHit3 })
+
+			expect(cellCoords3).toEqual([1, 0])
+			expect(isHit3).toBe(true)
+		})
+
+		it("can apply the improvedHuntTarget strategy", () => {
+			// mock the randomInt function from math module
+			const randomInt = jest.spyOn(math, "randomInt")
+
+			const aiPlayer = new AiPlayer(
+				playerName,
+				fleet,
+				sizeGameboard,
+				sizeGameboard,
+				"improvedHuntTarget"
+			)
+			const opponentPlayer = new AiPlayer(opponentName, fleet, sizeGameboard)
+			opponentPlayer.gameboard.placeShip("Destroyer", [0, 0], "E")
+
+			// Score a miss: the [0, 1] cell is skipped in hunt mode
+			randomInt.mockImplementation(() => 2)
+			const cellCoords = aiPlayer.getOpponentTargetCellCoords()
+			const isHit = opponentPlayer.gameboard.receiveAttack(cellCoords) > 0
+			aiPlayer.applyPostAttackActions(cellCoords, { isHit })
+
+			expect(cellCoords).toEqual([0, 2])
+			expect(isHit).toBe(false)
+
+			// Now, score a hit
+			randomInt.mockImplementation(() => 0)
+			const cellCoords2 = aiPlayer.getOpponentTargetCellCoords()
+			const isHit2 = opponentPlayer.gameboard.receiveAttack(cellCoords2) > 0
+			aiPlayer.applyPostAttackActions(cellCoords2, { isHit: isHit2 })
+
+			expect(cellCoords2).toEqual([0, 0])
+			expect(isHit2).toBe(true)
+
+			// Using the improvedHuntTarget strategy, it gives [1, 0]
+			// high priority
 			randomInt.mockImplementation(() => 1)
 			const cellCoords3 = aiPlayer.getOpponentTargetCellCoords()
 			const isHit3 = opponentPlayer.gameboard.receiveAttack(cellCoords3) > 0
