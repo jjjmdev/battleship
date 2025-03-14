@@ -31,7 +31,8 @@ export default class AiPlayer extends Player {
 	#skills
 	#getOpponentTargetCellCoords // methods initialized based on the #skills
 	#applyPostAttackActions // methods initialized based on the #skills
-	#opponentMinShipSize = 2
+	#opponentMinShipSize
+	#opponentShipSizes
 
 	constructor(
 		name,
@@ -43,6 +44,10 @@ export default class AiPlayer extends Player {
 		super(name, fleet, nCols, nRows)
 
 		this.#initPossibleTargets()
+
+		if (skills == "improvedHuntTarget") {
+			this.#initOpponentShipsLength()
+		}
 		this.#skills = skills
 		this.#initPlayerSkills()
 	}
@@ -58,6 +63,16 @@ export default class AiPlayer extends Player {
 		// this.#possibleTargets.set("3,2", [3, 2])
 		// this.#possibleTargets.set("2,1", [2, 1])
 		this.#highPriorityPossibleTargets = new Map()
+	}
+
+	#initOpponentShipsLength() {
+		// The opponent ships' length are the same of the current player
+		// so use this players coordinates
+		// Sort the array by ship length
+		this.#opponentShipSizes = this.gameboard.fleetAsShipObj
+			.map((ship) => ship.length)
+			.sort((a, b) => a - b)
+		this.#opponentMinShipSize = this.#opponentShipSizes[0]
 	}
 
 	#initPlayerSkills() {
@@ -117,11 +132,15 @@ export default class AiPlayer extends Player {
 		this.#possibleTargets.delete(arr2str(cellCoords))
 		this.#highPriorityPossibleTargets.delete(arr2str(cellCoords))
 
-		if (outcome.isSunk && this.#highPriorityPossibleTargets.size > 0) {
-			this.#highPriorityPossibleTargets.forEach((values, keys) => {
-				this.#possibleTargets.set(keys, values)
-				this.#highPriorityPossibleTargets.delete(keys)
-			})
+		if (outcome.isSunk) {
+			this.#removeOpponentSunkShipSize(outcome.sunkShip.length)
+
+			if (this.#highPriorityPossibleTargets.size > 0) {
+				this.#highPriorityPossibleTargets.forEach((values, keys) => {
+					this.#possibleTargets.set(keys, values)
+					this.#highPriorityPossibleTargets.delete(keys)
+				})
+			}
 		} else if (outcome.isHit) {
 			// give high priority to the next turn
 			const [col, row] = cellCoords
@@ -169,5 +188,10 @@ export default class AiPlayer extends Player {
 
 	#applyPostAttackActionsImprovedHuntTarget(cellCoords, outcome) {
 		this.#applyPostAttackActionsHuntTarget(cellCoords, outcome)
+	}
+
+	#removeOpponentSunkShipSize(size) {
+		this.#opponentShipSizes.splice(this.#opponentShipSizes.indexOf(size), 1)
+		this.#opponentMinShipSize = this.#opponentShipSizes[0]
 	}
 }
