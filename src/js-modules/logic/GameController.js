@@ -32,7 +32,13 @@ export default class GameController {
 
 	#initPlayer(playerName, isAi = false) {
 		if (isAi) {
-			return new AiPlayer(playerName)
+			return new AiPlayer(
+				playerName,
+				Player.defaultFleet,
+				Player.defaultGameboardSize,
+				Player.defaultGameboardSize,
+				"improvedHuntTarget"
+			)
 		} else {
 			return new Player(playerName)
 		}
