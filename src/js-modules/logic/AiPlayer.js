@@ -12,8 +12,34 @@ import { randomInt } from "../utils/math.js"
 //
 // improvedHuntTarget: the same as the huntTarget one.
 // However, in hunt mode, not all cells are considered,
-// but just the ones for which: (row + col) % opponentMinShipSize === 0,
-// where opponentMinShipSize is the minimum  ship size of the opponent
+// but just the ones for which: (row + col) % opponentMinShipSize === offset,
+// where opponentMinShipSize is the minimum  ship size of the opponent,
+// offset is a number between 0 and opponentMinShipSize-1, such that
+// the set {(row, cols) such that (row + col) % opponentMinShipSize === offset}
+// of target cells has the minimum size.
+//
+// - probabilistic: a frequency map is computed considering each possible
+// target cell, counting all the ways an unsunk ship could be placed
+// in there. Note that each possibility is weighted 1. However, if the ship
+// in a given position crosses N hit cells, the weight is 100^N. This helps
+// prioritizing the cells close to the hit ones.
+//
+// The cell with the highest frequency is selected. If there is more than one
+// with the same maximum frequency, one of them is chosen randomly.
+//
+// When a cell is attacked, it is still removed from the possible targets list.
+// However, its coordinates are saved in a hitTarget list if there is a hit.
+// Once a ship is sunk, its occupied coordinates are removed from hitTargets list.
+//
+// - improvedProbabilistic: when in target mode (i.e., there are hit cells which
+// are not of sunk ship), apply the probabilistic strategy.
+//
+// Otherwise, in hunt mode, consider just the selected cells considering parity
+// (see improvedHuntTarget strategy), and in particular their squared frequencies,
+// from which a probability is recomputed. Then, select a random cell among these cells,
+// taking into account such probability. In this way, at the beginning it is more
+// probable to choose a cell in the middle.
+// However, there is no guarantee to be choosing exactly one of those.
 // See https://towardsdatascience.com/coding-an-intelligent-battleship-agent-bf0064a4b319
 
 const defaultSkills = "huntTarget"
@@ -34,19 +60,25 @@ export default class AiPlayer extends Player {
 	#opponentMinShipSize
 	#opponentShipSizes
 	#selectedPossibleTargets
+	#hitTargets
+	#targetFrequencies
 
 	constructor(
 		name,
+		skills = defaultSkills,
 		fleet = Player.defaultFleet,
 		nCols = Player.defaultGameboardSize,
-		nRows = nCols,
-		skills = defaultSkills
+		nRows = nCols
 	) {
 		super(name, fleet, nCols, nRows)
 
 		this.#initPossibleTargets()
 
-		if (skills == "improvedHuntTarget") {
+		if (
+			skills == "improvedHuntTarget" ||
+			skills == "probabilistic" ||
+			skills == "improvedProbabilistic"
+		) {
 			this.#initOpponentShipsSize()
 		}
 		this.#skills = skills
@@ -64,6 +96,7 @@ export default class AiPlayer extends Player {
 		// this.#possibleTargets.set("3,2", [3, 2])
 		// this.#possibleTargets.set("2,1", [2, 1])
 		this.#highPriorityPossibleTargets = new Map()
+		this.#hitTargets = new Map()
 	}
 
 	#initPlayerSkills() {
@@ -80,6 +113,15 @@ export default class AiPlayer extends Player {
 				this.#getOpponentTargetCellCoordsImprovedHuntTarget
 			this.#applyPostAttackActions =
 				this.#applyPostAttackActionsImprovedHuntTarget
+		} else if (this.#skills == "probabilistic") {
+			this.#getOpponentTargetCellCoords =
+				this.#getOpponentTargetCellCoordsProbabilistic
+			this.#applyPostAttackActions = this.#applyPostAttackActionsProbabilistic
+		} else if (this.#skills == "improvedProbabilistic") {
+			this.#getOpponentTargetCellCoords =
+				this.#getOpponentTargetCellCoordsImprovedProbabilistic
+			this.#applyPostAttackActions =
+				this.#applyPostAttackActionsImprovedProbabilistic
 		}
 	}
 
@@ -123,16 +165,7 @@ export default class AiPlayer extends Player {
 		this.#possibleTargets.delete(arr2str(cellCoords))
 		this.#highPriorityPossibleTargets.delete(arr2str(cellCoords))
 
-		if (outcome.isSunk) {
-			this.#removeOpponentSunkShipSize(outcome.sunkShip.length)
-
-			if (this.#highPriorityPossibleTargets.size > 0) {
-				this.#highPriorityPossibleTargets.forEach((values, keys) => {
-					this.#possibleTargets.set(keys, values)
-					this.#highPriorityPossibleTargets.delete(keys)
-				})
-			}
-		} else if (outcome.isHit) {
+		if (outcome.isHit) {
 			// give high priority to the next turn
 			const [col, row] = cellCoords
 
@@ -151,34 +184,30 @@ export default class AiPlayer extends Player {
 					)
 				}
 			})
-			// TODO
-			// If hit again and not sink yet, the next attack must be the same direction
 		}
 	}
 
 	/* improvedHuntTarget strategy */
 	#getOpponentTargetCellCoordsImprovedHuntTarget() {
-		// If the high priority target list is not empty, select one of that
-		if (this.#highPriorityPossibleTargets.size > 0) {
-			// target mode
-			const targetMap = this.#highPriorityPossibleTargets
-
-			return this.#getOpponentTargetCellCoordsRandom(targetMap)
-		} else {
-			// hunt mode
-			const targetMap = this.#possibleTargets
-			while (true) {
-				const [row, col] = this.#getOpponentTargetCellCoordsRandom(targetMap)
-
-				if ((row + col) % this.#opponentMinShipSize === 0) {
-					return [row, col]
-				}
-			}
-		}
+		const targetMap =
+			this.#highPriorityPossibleTargets.size > 0
+				? this.#highPriorityPossibleTargets // target mode
+				: this.#selectedPossibleTargets // hunt mode
+		return this.#getOpponentTargetCellCoordsRandom(targetMap)
 	}
 
 	#applyPostAttackActionsImprovedHuntTarget(cellCoords, outcome) {
 		this.#applyPostAttackActionsHuntTarget(cellCoords, outcome)
+
+		// Delete the coords from the selectedPossibleTargets, too
+		// There is no need to delete the neighboring cells if it is a hit,
+		// Because in target mode, you won't be using #selectedPossibleTargets
+		this.#selectedPossibleTargets.delete(arr2str(cellCoords))
+
+		// If the ship is sunk, update the opponentMinShipSize
+		if (outcome.isSunk) {
+			this.#removeOpponentSunkShipSize(outcome.sunkShip.length)
+		}
 	}
 
 	#initOpponentShipsSize() {
@@ -215,7 +244,6 @@ export default class AiPlayer extends Player {
 		]
 		let minMapSize = selectedPossibleTargetsArr[0].size
 
-		console.log("full:", minMapSize)
 		// There are different possible Maps that can be considered, each one with a different offset.
 		// The elements in each one are those who fulfill: (row + col) % minShipSize === offset
 		for (let offset = 0; offset < minShipSize; offset++) {
@@ -228,22 +256,166 @@ export default class AiPlayer extends Player {
 			})
 			const tempMapSize = tempSelectedPossibleTargets.size
 
-			console.log("offset", offset, tempMapSize, tempSelectedPossibleTargets)
-
 			// If this temporary Map has a smaller size than minMapSize, replace the selectedPossibleTargetsArr and update (reduce) minMapSize
 			if (tempMapSize < minMapSize) {
 				selectedPossibleTargetsArr = [tempSelectedPossibleTargets]
 				minMapSize = tempMapSize
-				console.log("replaced", minMapSize)
 			} else if (tempMapSize === minMapSize) {
 				selectedPossibleTargetsArr.push(tempSelectedPossibleTargets)
-				console.log("append", minMapSize)
 			}
 
 			// Use a set from selectedPossibleTargetsArr. Choose randomly, as they are equivalent
 			const idx = randomInt(0, selectedPossibleTargetsArr.length - 1)
-			console.log(idx, selectedPossibleTargetsArr)
+			// console.log(idx, selectedPossibleTargetsArr)
 			this.#selectedPossibleTargets = selectedPossibleTargetsArr[idx]
+		}
+	}
+
+	/* probabilistic Strategy */
+	#getOpponentTargetCellCoordsProbabilistic() {
+		this.#computeCellsProbabilities()
+
+		// get the cells with the maximum probability
+		let maxFrequency = 0
+		let maxFrequenciesCoordsKeys = []
+
+		this.#targetFrequencies.entries().forEach(([key, frequency]) => {
+			if (frequency > maxFrequency) {
+				maxFrequenciesCoordsKeys = [key]
+				maxFrequency = frequency
+			} else if (frequency == maxFrequency) {
+				maxFrequenciesCoordsKeys.push(key)
+			}
+		})
+
+		// Randomly select one cells coords among maxFrequenciesCoordsKeys
+		const idx = randomInt(0, maxFrequenciesCoordsKeys.length - 1)
+
+		return this.#possibleTargets.get(maxFrequenciesCoordsKeys[idx])
+	}
+
+	#applyPostAttackActionsProbabilistic(cellCoords, outcome) {
+		// Delete current cell from possible targets
+		this.#possibleTargets.delete(arr2str(cellCoords))
+
+		// If hit, add cell to hit targets (which does not include sunk ship targets)
+		if (outcome.isHit) {
+			this.#hitTargets.set(arr2str(cellCoords), cellCoords)
+		}
+
+		// If sunk, remove ship coords from hit targets (which does not include sunk ship targets)
+		if (outcome.isSunk) {
+			const sunkShipCoords = outcome.sunkShipCoords[0]
+
+			sunkShipCoords.forEach((coords) =>
+				this.#hitTargets.delete(arr2str(coords))
+			)
+		}
+	}
+
+	#computeCellsProbabilities() {
+		// Initialize the frequencies map
+		const frequencies = new Map()
+		this.#possibleTargets.keys().forEach((key) => frequencies.set(key, 0))
+
+		// For each ship length
+		for (const shipSize of this.#opponentShipSizes) {
+			// For each possible target
+			for (const [col, row] of this.#possibleTargets.values()) {
+				// For each possible direction
+				forDirection: for (const [dCol, dRow] of neighboursCellDisplacement) {
+					const tempCellsKeys = []
+					let hits = 0
+					// const tempStr = `ship of length ${shipSize} in cell (${col},${row}) along ${dRow > 0 ? "S" : dRow < 0 ? "N" : dCol > 0 ? "E" : "W"}`
+
+					// check if the ship can fit: start from the end, so you could stop early if they overflow
+					for (let delta = shipSize - 1; delta >= 0; delta--) {
+						const [c, r] = [col + dCol * delta, row + dRow * delta]
+						const tempKey = arr2str([c, r])
+						const isHit = this.#hitTargets.has(tempKey)
+
+						// check if the cell could be occupied by this ship
+						// i.e., either it is in the possible (not attacked) targets or hit (but unsunk)
+						// if not, try next ship direction
+						if (!this.#possibleTargets.has(tempKey) && !isHit) {
+							// console.log("no", tempStr)
+							continue forDirection
+						}
+
+						// if hit, increment the hits counter, else save this cell label
+						if (isHit) {
+							hits++
+						} else {
+							tempCellsKeys.push(tempKey)
+						}
+					}
+					// Increment the counter for eeach cell that would be occupied by the ship
+					// Note: if there are some hits, this is weighted 100**hits instead of 1
+					// This helps prioritizing the cells close to the hit ones.
+					// Note: each ship is counted twice (it can be placed in two opposite directions)
+
+					// const strTempCells = tempCellsKeys.map((key) => `(${key})`)
+					// console.log("ALLOWED", tempStr, "-->", ...strTempCells)
+
+					const increment = hits === 0 ? 1 : 100 ** hits
+
+					tempCellsKeys.forEach((key) => {
+						const frequency = frequencies.get(key)
+						frequencies.set(key, frequency + increment)
+					})
+				}
+			}
+		}
+		console.log(frequencies)
+		this.#targetFrequencies = frequencies
+	}
+
+	/* improvedProbabilistic Strategy */
+	#getOpponentTargetCellCoordsImprovedProbabilistic() {
+		// in target mode: apply the probabilistic approach
+		if (this.#hitTargets.size > 0) {
+			return this.#getOpponentTargetCellCoordsProbabilistic()
+		}
+
+		// hunt mode: consider just the selected sells (see improved hunt target approach)
+		// consider the this.#selectedPossibleTargets list
+		this.#computeCellsProbabilities()
+
+		// get the squared frequencies of the selected targets
+		const targetFrequencies = new Map()
+		this.#selectedPossibleTargets
+			.keys()
+			.forEach((key) =>
+				targetFrequencies.set(key, this.#targetFrequencies.get(key) ** 2)
+			)
+
+		// compute the sum of such selected frequencies
+		const sum = targetFrequencies
+			.values()
+			.reduce((sum, frequency) => sum + frequency, 0)
+
+		// get a cell randomly, taking into account such probabilities
+		const rand = randomInt(0, sum - 1)
+		let cumsum = 0
+
+		for (const [key, frequency] of targetFrequencies) {
+			cumsum += frequency
+
+			if (cumsum > rand) {
+				return this.#selectedPossibleTargets.get(key)
+			}
+		}
+	}
+
+	#applyPostAttackActionsImprovedProbabilistic(cellCoords, outcome) {
+		this.#applyPostAttackActionsProbabilistic(cellCoords, outcome)
+
+		// delete the coords from the selectedPossibleTargets, too
+		this.#selectedPossibleTargets.delete(arr2str(cellCoords))
+
+		// if the ship is sunk, update the opponentMinShipSize
+		if (outcome.isSunk) {
+			this.#removeOpponentSunkShipSize(outcome.sunkShip.length)
 		}
 	}
 }

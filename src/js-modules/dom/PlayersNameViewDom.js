@@ -17,6 +17,9 @@ const cssClass = {
 	playBtn: "play-btn",
 	playersCntDiv: "players-cnt-div",
 	playerDiv: "player-div",
+	aiPlayerDiv: "ai-player-div",
+	prevAiBtn: "prev-ai-btn",
+	nextAiBtn: "next-ai-btn",
 	playerNameP: "player-name-p",
 	playerTitleP: "player-title-p",
 	playerNameInput: "player-name-input",
@@ -24,16 +27,25 @@ const cssClass = {
 }
 const getCssClass = (element) => `${blockName}__${cssClass[element]}`
 
+const aiPlayers = [
+	{ title: "Captain", name: "Novice", skills: "random" },
+	{ title: "Captain", name: "Intermediate", skills: "huntTarget" },
+	{ title: "Captain", name: "Advanced", skills: "improvedHuntTarget" },
+	{ title: "Captain", name: "Expert", skills: "probabilistic" },
+	{ title: "Captain", name: "Master", skills: "improvedProbabilistic" },
+]
 const defaultData = {
 	player1: { title: "Captain", name: "Hook" },
 	player2: { title: "Captain", name: "Finch" },
-	aiPlayer: { title: "Captain", name: "AI" },
+	aiPlayerIdx: 2,
 }
 
 export default class PlayersNameViewDom {
 	#versusAi
 	#div
 	#playersName = []
+	#aiPlayerIdx
+	#aiSkills
 
 	constructor(versusAi) {
 		this.#versusAi = versusAi
@@ -64,7 +76,7 @@ export default class PlayersNameViewDom {
 		// Create a new game controller (this triggers the start of the game,
 		// once initialized)
 		// console.log(this.#playersName)
-		new GameController(...this.#playersName, this.#versusAi)
+		new GameController(...this.#playersName, this.#versusAi, this.#aiSkills)
 	}
 
 	#initPlayBtn() {
@@ -84,7 +96,7 @@ export default class PlayersNameViewDom {
 		const player1Div = this.#initPlayerNameDiv(defaultData.player1)
 		const vsP = initP(getCssClass("vsP"), "VS")
 		const player2Div = this.#versusAi
-			? this.#initAiPlayerNameDiv(defaultData.aiPlayer)
+			? this.#initAiPlayerNameDiv(defaultData.aiPlayerIdx)
 			: this.#initPlayerNameDiv(defaultData.player2)
 
 		playersCntDiv.append(player1Div, vsP, player2Div)
@@ -119,19 +131,65 @@ export default class PlayersNameViewDom {
 		return playerCntDiv
 	}
 
-	#initAiPlayerNameDiv({ title, name }) {
+	#initAiPlayerNameDiv(aiPlayerIdx) {
+		this.#aiPlayerIdx = aiPlayerIdx
+
 		const playerId = this.#playersName.length
-		const playerCntDiv = initDiv(getCssClass("playerDiv"))
-		const playerTitleP = initP(getCssClass("playerTitleP"), title)
-		const playerNameP = initP(getCssClass("playerNameP"), name)
-		playerCntDiv.append(playerTitleP, playerNameP)
+		const playerCntDiv = initDiv([
+			getCssClass("playerDiv"),
+			getCssClass("aiPlayerDiv"),
+		])
+
+		const playerNameP = initP(getCssClass("playerNameP"))
+		const playerTitleP = initP(getCssClass("playerTitleP"))
 
 		const setPlayerName = () => {
 			this.#playersName[
 				playerId
 			] = `${playerTitleP.textContent.trim()} ${playerNameP.textContent.trim()}`
 		}
-		setPlayerName()
+
+		const setAiPlayer = () => {
+			prevAiBtn.disabled = this.#aiPlayerIdx === 0
+			nextAiBtn.disabled = this.#aiPlayerIdx === aiPlayers.length - 1
+
+			const { title, name, skills } = aiPlayers[this.#aiPlayerIdx]
+
+			playerNameP.textContent = name
+			playerTitleP.textContent = title
+			this.#aiSkills = skills
+
+			setPlayerName()
+		}
+
+		// Callbacks
+		const prevAiCallback = () => {
+			this.#aiPlayerIdx--
+			setAiPlayer()
+		}
+
+		const nextAiCallback = () => {
+			this.#aiPlayerIdx++
+			setAiPlayer()
+		}
+
+		const prevAiBtn = initButton(
+			getCssClass("prevAiBtn"),
+			prevAiCallback.bind(this),
+			null,
+			"<"
+		)
+		const nextAiBtn = initButton(
+			getCssClass("nextAiBtn"),
+			nextAiCallback.bind(this),
+			null,
+			">"
+		)
+
+		playerCntDiv.append(prevAiBtn, playerTitleP, playerNameP, nextAiBtn)
+
+		// Init AI player
+		setAiPlayer()
 
 		return playerCntDiv
 	}

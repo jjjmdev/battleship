@@ -12,9 +12,9 @@ export default class GameController {
 
 	#versusAi
 
-	constructor(player1Name, player2Name, versusAi = true) {
+	constructor(player1Name, player2Name, versusAi = true, aiSkills = null) {
 		this.#player1 = this.#initPlayer(player1Name)
-		this.#player2 = this.#initPlayer(player2Name, versusAi)
+		this.#player2 = this.#initPlayer(player2Name, versusAi, aiSkills)
 
 		this.#versusAi = versusAi
 		this.#initGame()
@@ -30,15 +30,9 @@ export default class GameController {
 		return this.#player2
 	}
 
-	#initPlayer(playerName, isAi = false) {
+	#initPlayer(playerName, isAi = false, aiSkills) {
 		if (isAi) {
-			return new AiPlayer(
-				playerName,
-				Player.defaultFleet,
-				Player.defaultGameboardSize,
-				Player.defaultGameboardSize,
-				"improvedHuntTarget"
-			)
+			return new AiPlayer(playerName, aiSkills)
 		} else {
 			return new Player(playerName)
 		}
@@ -170,7 +164,11 @@ export default class GameController {
 			? this.#opponent.gameboard.getCell(coords).getShip()
 			: null
 
-		return { isHit, isSunk, isWin, sunkShip }
+		const sunkShipCoords = isSunk
+			? this.#opponent.gameboard.getShipPosition(sunkShip.name)
+			: null
+
+		return { isHit, isSunk, isWin, sunkShip, sunkShipCoords }
 	}
 
 	#applyPostAttackActions(coords, outcome) {
