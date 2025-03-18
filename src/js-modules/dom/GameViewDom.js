@@ -22,13 +22,15 @@ export default class GameViewDom {
 	#div
 	#playersDom
 	#currentPlayer
+	#versusAi
 	#showCurrentPlayerDeployedFleetCallbackBinded
 
-	constructor(player1, player2) {
+	constructor(player1, player2, versusAi) {
 		this.#showCurrentPlayerDeployedFleetCallbackBinded =
 			this.#showCurrentPlayerDeployedFleetCallback.bind(this)
 
 		this.#playersDom = [new PlayerDom(player1), new PlayerDom(player2)]
+		this.#versusAi = versusAi
 		this.#div = this.#initGameViewDiv(...this.#playersDom)
 		this.#div.obj = this
 
@@ -72,6 +74,11 @@ export default class GameViewDom {
 	#initHeader() {
 		const header = initHeader(getCssClass("header"))
 		const toggleBtn = this.#initToggleFleetBtn()
+
+		if (this.#versusAi) {
+			toggleBtn.style.visibility = "hidden"
+		}
+
 		header.append(toggleBtn)
 		return header
 	}

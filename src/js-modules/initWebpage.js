@@ -17,9 +17,9 @@ export default function initWebpage() {
 	renderHomeViewDom()
 }
 
-function renderGameViewDom(token, { player1, player2 }) {
+function renderGameViewDom(token, { player1, player2, versusAi }) {
 	removeDescendants(container)
-	const gameViewDom = new GameViewDom(player1, player2)
+	const gameViewDom = new GameViewDom(player1, player2, versusAi)
 	container.append(gameViewDom.div)
 	// Notify the initialization of the page
 	PubSub.publish(pubSubTokens.gameViewInitialized, renderGameViewDom)
@@ -41,7 +41,6 @@ function renderGameViewEndDom(
 }
 
 function renderHomeViewDom(token) {
-	console.log(token)
 	removeDescendants(container)
 	const homeViewDom = new HomeViewDom()
 	container.append(homeViewDom.div)
