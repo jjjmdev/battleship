@@ -12,7 +12,7 @@ export default class CellDom {
 		this.#div.obj = this
 
 		// temporary: mark the ships
-		markShip.call(this)
+		// markShip.call(this)
 		this.setAttackStatus()
 	}
 
@@ -46,8 +46,8 @@ function initCellDiv(cell) {
 	return div
 }
 
-function markShip() {
-	if (this.cell.hasShip()) {
-		this.div.textContent = "#"
-	}
-}
+// function markShip() {
+// 	if (this.cell.hasShip()) {
+// 		this.div.textContent = "#"
+// 	}
+// }
