@@ -1,6 +1,8 @@
-export function removeDescendants(element) {
-	while (element.hasChildNodes()) {
-		removeDescendants(element.lastChild)
-		element.removeChild(element.lastChild)
-	}
+export function removeDescendants(element, newContent = undefined) {
+	element.replaceChildren(newContent)
+}
+export function resetContent(contentDiv, newContent = undefined) {
+	removeDescendants(contentDiv, newContent)
+	contentDiv.setAttribute("class", "")
+	window.scrollTo(0, 0)
 }
