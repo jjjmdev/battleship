@@ -84,7 +84,7 @@
     --inset-shadow: 2px 2px 2px var(--col-accent-light) inset; */
 
 	/* Animations on hover / active / ...*/
-	--time-animation: 0.2s;
+	--time-animation-btn: 0.2s;
 }
 
 /* ::backdrop { */
@@ -574,7 +574,7 @@ button {
 	border: none;
 	border-radius: var(--button-radius);
 	font-size: var(--button-fontsize);
-	transition: transform var(--time-animation);
+	transition: transform var(--time-animation-btn);
 	box-shadow: 0 var(--shadow-len-txt) var(--shadow-len-txt) var(--col-txt);
 }
 
@@ -611,4 +611,47 @@ button:active {
 
 .gameboard.aiming .cell:not(.hit):not(.miss) {
 	cursor: crosshair;
+}
+
+/* animation class */
+.player__name-span {
+	transition: color var(--time-animation),
+		background-color var(--time-animation);
+}
+
+.miss-mark,
+.hit-mark,
+.ship {
+	opacity: 1;
+	transform: scale(1);
+	transition: opacity var(--time-animation), transform var(--time-animation),
+		background-color var(--time-animation);
+	transition-timing-function: ease;
+}
+
+.miss-mark {
+	transform: scale(0.6);
+}
+
+.miss-mark.initial-state,
+.hit-mark.initial-state,
+.ship.initial-state {
+	opacity: 0;
+}
+
+.miss-mark.initial-state {
+	transform: scale(0.3);
+}
+
+.hit-mark.initial-state {
+	transform: scale(2);
+}
+
+.ship.initial-state {
+	transform: scale(1);
+	transition-timing-function: ease-out;
+}
+
+.ship {
+	transition-timing-function: ease-in;
 }

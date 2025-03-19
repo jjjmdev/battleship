@@ -7,8 +7,16 @@ import MissMarkDom from "./MissMarkDom.js"
 import HitMarkDom from "./HitMarkDom.js"
 
 const blockName = "gameboard"
-
 const aimingClass = "aiming"
+
+const animationInitialStateClass = "initial-state"
+const animationDuration = 200 // ms
+
+// set the animation duration css property
+document.documentElement.style.setProperty(
+	"--time-animation",
+	`${animationDuration}ms`
+)
 
 export default class GameboardDom {
 	#gameboard
@@ -17,6 +25,7 @@ export default class GameboardDom {
 	#cells
 	#fleetDom
 	#deployedFleetDomShown
+	#deployedFleetAnimationOn
 
 	constructor(gameboard) {
 		this.#gameboard = gameboard
@@ -27,6 +36,7 @@ export default class GameboardDom {
 		this.#fleetDom = new Map()
 		this.#initFleet()
 		this.#deployedFleetDomShown = false
+		this.#deployedFleetAnimationOn = false
 	}
 
 	// getters
@@ -38,7 +48,8 @@ export default class GameboardDom {
 		return this.#div
 	}
 
-	showAttackOutcome(coords, outcome) {
+	async showAttackOutcome(coords, outcome) {
+		// the function is async, and awaits for the hit/miss mark show animation, if any
 		const cellDom = this.#cells.get(coords.join(","))
 		cellDom.setAttackStatus()
 
@@ -47,11 +58,13 @@ export default class GameboardDom {
 			: new MissMarkDom(coords)
 		this.#div.append(outcomeMarkDom.div)
 
+		await triggerAnimation(outcomeMarkDom.div)
+
 		if (outcome.isSunk) {
 			const shipName = outcome.sunkShip.name
 			const shipObj = this.#fleetDom.get(shipName)
 			shipObj.makeItSunk()
-			this.#showShip(shipObj)
+			await this.#showShip(shipObj)
 		}
 		PubSub.publish(pubSubTokens.attackOutcomeShown, { coords, outcome })
 	}
@@ -70,11 +83,16 @@ export default class GameboardDom {
 		return shipObj
 	}
 
-	#showShip(shipObj) {
+	async #showShip(shipObj) {
+		// the function is async, and awaits for the ship show animation, if any
 		this.#div.append(shipObj.div)
+		await triggerAnimation(shipObj.div)
 	}
 
-	#hideShip(shipObj) {
+	async #hideShip(shipObj) {
+		// the function is async, and awaits for the ship show animation, if any
+		await triggerAnimation(shipObj.div, true)
+		// wait for the animation end before removing it
 		this.#div.removeChild(shipObj.div)
 	}
 
@@ -86,23 +104,44 @@ export default class GameboardDom {
 		})
 	}
 
-	showDeployedFleet() {
-		this.#gameboard.deployedFleet.forEach((shipName) => {
-			const shipObj = this.#fleetDom.get(shipName)
-			this.#showShip(shipObj)
-		})
+	// the function is async, and awaits for all the ship show animations, if any
+	async showDeployedFleet() {
+		// do nothing if there is an animation ongoing or the fleet is already shown
+		if (!this.#deployedFleetDomShown && !this.#deployedFleetAnimationOn) {
+			this.#deployedFleetAnimationOn = true
 
-		this.#deployedFleetDomShown = true
-	}
+			// save promises returned by #showShip to eventually wait for their resolution
+			const promiseArray = []
 
-	hideDeployedFleet() {
-		if (this.#deployedFleetDomShown) {
 			this.#gameboard.deployedFleet.forEach((shipName) => {
 				const shipObj = this.#fleetDom.get(shipName)
-				this.#hideShip(shipObj)
+				promiseArray.push(this.#showShip(shipObj)) // returns a promise
 			})
 
+			await Promise.all(promiseArray)
+
+			this.#deployedFleetDomShown = true
+			this.#deployedFleetAnimationOn = false
+		}
+	}
+
+	// the function is async, and awaits for all the ship show animations, if any
+	async hideDeployedFleet() {
+		// do nothing if there is an animation ongoing or the fleet is already hidden
+		if (this.#deployedFleetDomShown && !this.#deployedFleetAnimationOn) {
+			this.#deployedFleetAnimationOn = true
+
+			// save promises returned by #showShip to eventually wait for their resolution
+			const promiseArray = []
+			this.#gameboard.deployedFleet.forEach((shipName) => {
+				const shipObj = this.#fleetDom.get(shipName)
+				promiseArray.push(this.#hideShip(shipObj)) // returns a promise
+			})
+
+			await Promise.all(promiseArray)
+
 			this.#deployedFleetDomShown = false
+			this.#deployedFleetAnimationOn = false
 		}
 	}
 
@@ -161,4 +200,25 @@ export default class GameboardDom {
 
 		PubSub.publish(pubSubTokens.attackCoordsAcquired, cell.coords)
 	}
+}
+
+async function triggerAnimation(div, hide = false) {
+	// this uses a trick to trigger the animation on the element
+
+	hide
+		? div.classList.remove(animationInitialStateClass)
+		: div.classList.add(animationInitialStateClass)
+
+	console.log("helllo")
+
+	await new Promise((resolve) => requestAnimationFrame(resolve))
+	await new Promise((resolve) =>
+		setTimeout(() => {
+			div.classList.toggle(animationInitialStateClass)
+			resolve()
+		}, 0)
+	)
+
+	// wait for the animation to end before removing it
+	return new Promise((resolve) => setTimeout(resolve, animationDuration))
 }
