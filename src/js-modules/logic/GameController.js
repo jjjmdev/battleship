@@ -4,6 +4,9 @@ import PubSub from "pubsub-js"
 import { randomInt } from "../utils/math.js"
 import { pubSubTokens, pubSubTokensUi, pubSubTopicUi } from "../pubSubTokens.js"
 
+const aiMoveDelay = 1000 // ms
+const genericDelay = 2000 // ms
+
 export default class GameController {
 	#player1
 	#player2
@@ -140,7 +143,10 @@ export default class GameController {
 		// Attack the opponent and get outcome info
 		const outcome = this.#attackTheOpponent(coords)
 		// Perform actions based on hit or miss outcome (todo)
-		this.#showAttackOutcome(coords, outcome)
+		setTimeout(
+			() => this.#showAttackOutcome(coords, outcome),
+			this.#isAIPlayer() ? aiMoveDelay : 0
+		)
 	}
 
 	#getAttackCoords() {
@@ -219,12 +225,16 @@ export default class GameController {
 			PubSub.unsubscribe(pubSubTokens.playTurn)
 			PubSub.unsubscribe(pubSubTopicUi) // remove all UI PubSub subscriptions
 
-			PubSub.publish(pubSubTokens.showGameEndView, {
-				winnerPlayerName: this.#current.name,
-				defeatedPlayerName: this.#opponent.name,
-				versusAi: this.#versusAi,
-				isWinnerAi: this.#isAIPlayer(),
-			})
+			setTimeout(
+				() =>
+					PubSub.publish(pubSubTokens.showGameEndView, {
+						winnerPlayerName: this.#current.name,
+						defeatedPlayerName: this.#opponent.name,
+						versusAi: this.#versusAi,
+						isWinnerAi: this.#isAIPlayer(),
+					}),
+				genericDelay
+			)
 			return
 		}
 
