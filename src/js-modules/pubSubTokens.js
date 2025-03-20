@@ -25,4 +25,6 @@ export const pubSubTokensUi = {
 		`ui: TOGGLE DEPLOYED FLEET ON ${player.name} GAMEBOARD`,
 	hideDeployedFleetShown: (player) =>
 		`ui: HIDE DEPLOYED FLEET ON ${player.name} GAMEBOARD`,
+	updateDeployedFleetShown: (player) =>
+		`ui: UPDATE DEPLOYED FLEET ON ${player.name} GAMEBOARD`,
 }

@@ -67,8 +67,21 @@ export default class DeployFleetViewDom {
 	}
 
 	#initRandomizeFleetButton() {
-		const btn = initButton("btn", () => {}, "button", "Randomize")
+		const btn = initButton(
+			"btn",
+			this.#randomizeFleetCallback.bind(this),
+			"button",
+			"Randomize"
+		)
 		return btn
+	}
+
+	#randomizeFleetCallback() {
+		this.#playerDom.player.repeatRandomShipsPlacement()
+
+		PubSub.publish(
+			pubSubTokensUi.updateDeployedFleetShown(this.#playerDom.player)
+		)
 	}
 
 	#initFleetReadyButton() {

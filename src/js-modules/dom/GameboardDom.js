@@ -153,6 +153,18 @@ export default class GameboardDom {
 		}
 	}
 
+	async updateDeployedFleet() {
+		await this.hideDeployedFleet()
+
+		// change position of shipDom objects
+		this.#gameboard.fleet.forEach((shipName) => {
+			const shipObj = this.#fleetDom.get(shipName)
+			shipObj.updatePosition(...this.#gameboard.getShipPosition(shipName))
+		})
+
+		await this.showDeployedFleet()
+	}
+
 	#initGameboardDiv(gameboard) {
 		const div = initDiv(blockName)
 
