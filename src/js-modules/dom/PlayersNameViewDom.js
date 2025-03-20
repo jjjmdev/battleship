@@ -115,6 +115,7 @@ export default class PlayersNameViewDom {
 			name,
 			false
 		)
+		playerNameInput.maxLength = 15
 
 		playerCntDiv.append(playerTitleP, playerNameInput)
 

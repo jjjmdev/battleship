@@ -205,3 +205,9 @@ export function initSpan(className = null) {
 	applyClass(element, className)
 	return element
 }
+
+export function initFooter(className = null) {
+	const element = document.createElement("footer")
+	applyClass(element, className)
+	return element
+}

@@ -1,14 +1,22 @@
+import PubSub from "pubsub-js"
 import GameViewDom from "./dom/GameViewDom.js"
 import GameEndViewDom from "./dom/GameEndViewDom.js"
 import HomeViewDom from "./dom/HomeViewDom.js"
 import PlayersNameViewDom from "./dom/PlayersNameViewDom.js"
-import PubSub from "pubsub-js"
+import initMainFooter from "./initMainFooter.js"
+import setCreditFooter from "./utils/creditFooter.js"
 import { pubSubTokens } from "./pubSubTokens.js"
 import { resetContent } from "./utils/domUtilities.js"
 
-const container = document.body
+let container
 
 export default function initWebpage() {
+	container = document.createElement("main")
+	const mainFooter = initMainFooter()
+	document.body.append(container, mainFooter)
+
+	setCreditFooter()
+
 	PubSub.subscribe(pubSubTokens.showGameView, renderGameViewDom)
 	PubSub.subscribe(pubSubTokens.showGameEndView, renderGameViewEndDom)
 	PubSub.subscribe(pubSubTokens.showHomeView, renderHomeViewDom)

@@ -34,6 +34,7 @@
 		"webpack-dev-server": "^5.2.0"
 	},
 	"dependencies": {
-		"pubsub-js": "^1.9.5"
+		"pubsub-js": "^1.9.5",
+		"webfontloader": "^1.6.28"
 	}
 }
