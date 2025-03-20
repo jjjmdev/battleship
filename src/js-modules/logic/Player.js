@@ -55,4 +55,14 @@ export default class Player {
 			this.#gameboard.placeShip(name, [cStart, rStart], direction)
 		})
 	}
+
+	repeatRandomShipsPlacement() {
+		// reset the deployed fleet
+		const deployedFleet = [...this.#gameboard.deployedFleet]
+		deployedFleet.forEach((name) => {
+			this.#gameboard.resetShip(name)
+		})
+
+		this.randomShipsPlacement()
+	}
 }
