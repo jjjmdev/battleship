@@ -62,12 +62,17 @@ export default class DeployFleetViewDom {
 	}
 
 	#initRandomizeFleetButton() {
-		const btn = initButton("btn", () => {}, null, "Randomize")
+		const btn = initButton("btn", () => {}, "button", "Randomize")
 		return btn
 	}
 
 	#initFleetReadyButton() {
-		const btn = initButton("btn", this.#fleetReadyCallback, null, "I'M READY!")
+		const btn = initButton(
+			"btn",
+			this.#fleetReadyCallback,
+			"button",
+			"I'M READY!"
+		)
 		return btn
 	}
 
