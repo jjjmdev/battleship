@@ -1,6 +1,7 @@
 import PubSub from "pubsub-js"
 import GameViewDom from "./dom/GameViewDom.js"
 import GameEndViewDom from "./dom/GameEndViewDom.js"
+import DeployFleetViewDom from "./dom/DeployFleetViewDom.js"
 import HomeViewDom from "./dom/HomeViewDom.js"
 import PlayersNameViewDom from "./dom/PlayersNameViewDom.js"
 import initMainFooter from "./initMainFooter.js"
@@ -17,12 +18,19 @@ export default function initWebpage() {
 
 	setCreditFooter()
 
+	PubSub.subscribe(pubSubTokens.showDeployFleetView, renderDeployFleetViewDom)
 	PubSub.subscribe(pubSubTokens.showGameView, renderGameViewDom)
 	PubSub.subscribe(pubSubTokens.showGameEndView, renderGameViewEndDom)
 	PubSub.subscribe(pubSubTokens.showHomeView, renderHomeViewDom)
 	PubSub.subscribe(pubSubTokens.showPlayersNameView, renderPlayersNameViewDom)
 
 	renderHomeViewDom()
+}
+
+function renderDeployFleetViewDom(token, { player, isAi }) {
+	console.log(`${token} - ${player.name} ${isAi ? "(AI)" : ""}`)
+	const deployFleetViewDom = new DeployFleetViewDom(player, isAi)
+	resetContent(container, deployFleetViewDom.div)
 }
 
 function renderGameViewDom(token, { player1, player2, versusAi }) {

@@ -78,18 +78,38 @@ export default class GameController {
 		return this.#current instanceof AiPlayer
 	}
 
-	/* Gameplay Methods */
+	/* Init game methods */
 	#initGame() {
-		this.#deployFleet()
-		this.#initGameView()
+		// Start by deploying player 1 fleet: player 2 fleet will be deployed next
+		this.#deployPlayer1Fleet()
 	}
 
-	#deployFleet() {
-		this.#player1.randomShipsPlacement()
-		this.#player2.randomShipsPlacement()
+	/* Fleet deployment methods */
+	#deployPlayer1Fleet() {
+		PubSub.subscribe(
+			pubSubTokens.fleetDeployed,
+			this.#deployPlayer2Fleet.bind(this)
+		)
+
+		PubSub.publish(pubSubTokens.showDeployFleetView, {
+			player: this.#player1,
+			isAi: false,
+		})
+	}
+
+	#deployPlayer2Fleet() {
+		PubSub.unsubscribe(pubSubTokens.fleetDeployed)
+		PubSub.subscribe(pubSubTokens.fleetDeployed, this.#initGameView.bind(this))
+
+		PubSub.publish(pubSubTokens.showDeployFleetView, {
+			player: this.#player2,
+			isAi: this.#versusAi,
+		})
 	}
 
 	#initGameView() {
+		PubSub.unsubscribe(pubSubTokens.fleetDeployed)
+
 		PubSub.subscribe(
 			pubSubTokens.gameViewInitialized,
 			this.#playGame.bind(this)
