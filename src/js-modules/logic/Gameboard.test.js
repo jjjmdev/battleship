@@ -184,12 +184,38 @@ describe("Gameboard class", () => {
 				"The ship is not in the fleet"
 			)
 		})
+
+		it("can reset a deployed ship into the not deployed fleet", () => {
+			gameboard.resetShip(shipName1)
+			//, ...shipCoords1)
+
+			// the ship is moved into the not deployed fleet
+			expect(gameboard.hasDeployedShip(shipName1)).toBeFalsy()
+			expect(gameboard.hasNotDeployedShip(shipName1)).toBeTruthy()
+
+			// the ship position is null
+			expect(gameboard.getShipPosition(shipName1)).toBeNull()
+
+			// Check the cells: none of them is occupied by a ship
+			for (let c = 0; c < nCols; c++) {
+				for (let r = 0; r < nRows; r++) {
+					const cell = gameboard.getCell([c, r])
+
+					expect(cell.hasShip()).toBeFalsy()
+				}
+			}
+		})
 	})
 
 	describe("attack handling", () => {
 		const shipCoords2 = [[3, 1], "S"]
 
 		it("can receive attack in a cell of the board", () => {
+			// place ship1 again
+			const shipName1 = "My first ship"
+			const shipCoords1 = [[1, 3], "N"]
+			gameboard.placeShip(shipName1, ...shipCoords1)
+
 			const sampleCoordsHit = [1, 3]
 			const sampleCoordsMiss = [0, 0]
 
