@@ -13,7 +13,7 @@ const blockName = "home"
 const cssClass = {
 	header: "header",
 	titleH1: "title-h1",
-	subtitleP: "subtitle-P",
+	subtitleP: "subtitle-p",
 	play1Player: "play-1-player",
 	play2Players: "play-2-players",
 	playersBtns: "players-btns",
