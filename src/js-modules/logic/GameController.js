@@ -99,6 +99,7 @@ export default class GameController {
 
 	#deployPlayer2Fleet() {
 		PubSub.unsubscribe(pubSubTokens.fleetDeployed)
+		PubSub.unsubscribe(pubSubTokensUi)
 		PubSub.subscribe(pubSubTokens.fleetDeployed, this.#initGameView.bind(this))
 
 		PubSub.publish(pubSubTokens.showDeployFleetView, {
@@ -109,6 +110,7 @@ export default class GameController {
 
 	#initGameView() {
 		PubSub.unsubscribe(pubSubTokens.fleetDeployed)
+		PubSub.unsubscribe(pubSubTokensUi)
 
 		PubSub.subscribe(
 			pubSubTokens.gameViewInitialized,
