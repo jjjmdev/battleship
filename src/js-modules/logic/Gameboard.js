@@ -189,6 +189,23 @@ export default class Gameboard {
 		this.#fleetPosition.set(name, [cellsCoords, direction])
 	}
 
+	resetShip(name) {
+		// you can reset a ship only if it is deployed
+		if (!this.hasDeployedShip(name)) {
+			throw new Error("The ship is not deployed.")
+		}
+
+		const ship = this.#deployedFleet.get(name)
+
+		// reset the cells
+		const cellCoords = this.#fleetPosition.get(name)[0]
+		cellCoords.forEach(([c, r]) => this.#cells[c][r].removeShip())
+
+		this.#deployedFleet.delete(name)
+		this.#notDeployedFleet.set(name, ship)
+		this.#fleetPosition.set(name, null)
+	}
+
 	getShipPosition(shipName) {
 		if (!this.hasShip(shipName)) {
 			throw new Error("The ship is not in the fleet")
