@@ -11,7 +11,7 @@ describe("Gameboard class", () => {
 	const shipName2 = "My second ship"
 	const shipLen2 = 3
 	const shipName3 = "My third ship"
-	const shipLen3 = 2
+	const shipLen3 = 4
 
 	it("is defined", () => {
 		expect(Gameboard).toBeDefined()
@@ -184,38 +184,12 @@ describe("Gameboard class", () => {
 				"The ship is not in the fleet"
 			)
 		})
-
-		it("can reset a deployed ship into the not deployed fleet", () => {
-			gameboard.resetShip(shipName1)
-			//, ...shipCoords1)
-
-			// the ship is moved into the not deployed fleet
-			expect(gameboard.hasDeployedShip(shipName1)).toBeFalsy()
-			expect(gameboard.hasNotDeployedShip(shipName1)).toBeTruthy()
-
-			// the ship position is null
-			expect(gameboard.getShipPosition(shipName1)).toBeNull()
-
-			// Check the cells: none of them is occupied by a ship
-			for (let c = 0; c < nCols; c++) {
-				for (let r = 0; r < nRows; r++) {
-					const cell = gameboard.getCell([c, r])
-
-					expect(cell.hasShip()).toBeFalsy()
-				}
-			}
-		})
 	})
 
 	describe("attack handling", () => {
 		const shipCoords2 = [[3, 1], "S"]
 
 		it("can receive attack in a cell of the board", () => {
-			// place ship1 again
-			const shipName1 = "My first ship"
-			const shipCoords1 = [[1, 3], "N"]
-			gameboard.placeShip(shipName1, ...shipCoords1)
-
 			const sampleCoordsHit = [1, 3]
 			const sampleCoordsMiss = [0, 0]
 
@@ -298,6 +272,46 @@ describe("Gameboard class", () => {
 			expect(gameboard.receiveAttack([3, 1])).toEqual(1)
 			expect(gameboard.receiveAttack([3, 2])).toEqual(1)
 			expect(gameboard.receiveAttack([3, 3])).toEqual(2)
+		})
+	})
+
+	describe("deployed fleet editing", () => {
+		const shipCoords3 = [[4, 7], "W"]
+		const shipCellsCoords3_W = [
+			[4, 7],
+			[3, 7],
+			[2, 7],
+			[1, 7],
+		]
+		const shipCellsCoords3_N = [
+			[4, 7],
+			[4, 6],
+			[4, 5],
+			[4, 4],
+		]
+
+		it("can reset a deployed ship into the not deployed fleet", () => {
+			gameboard.placeShip(shipName3, ...shipCoords3)
+			gameboard.resetShip(shipName3)
+			//, ...shipCoords1)
+
+			// the ship is moved into the not deployed fleet
+			expect(gameboard.hasDeployedShip(shipName3)).toBeFalsy()
+			expect(gameboard.hasNotDeployedShip(shipName3)).toBeTruthy()
+
+			// the ship position is null
+			expect(gameboard.getShipPosition(shipName3)).toBeNull()
+
+			// Check the cells: none of them is occupied by a ship
+			for (let c = 0; c < nCols; c++) {
+				for (let r = 0; r < nRows; r++) {
+					const cell = gameboard.getCell([c, r])
+
+					if (cell.hasShip()) {
+						expect(cell.getShip().name).not.toBe(shipName3)
+					}
+				}
+			}
 		})
 	})
 })
