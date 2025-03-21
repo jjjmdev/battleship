@@ -43,6 +43,8 @@ export default class ShipDom extends PlaceableObjectDom {
 
 			if (direction == "N" || direction == "W") {
 				this.div.style.transform = "rotate(180deg)"
+			} else {
+				this.div.style.transform = "rotate(0)"
 			}
 
 			// Precompute mask style
