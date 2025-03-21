@@ -169,6 +169,17 @@ export default class GameboardDom {
 		await this.showDeployedFleet()
 	}
 
+	async updateDeployedShip(shipName) {
+		const shipObj = this.#fleetDom.get(shipName)
+
+		await this.#hideShip(shipObj)
+
+		// change position of shipDom objects
+		shipObj.updatePosition(...this.#gameboard.getShipPosition(shipName))
+
+		await this.#showShip(shipObj)
+	}
+
 	#initGameboardDiv(gameboard) {
 		const div = initDiv(blockName)
 
@@ -243,6 +254,9 @@ export default class GameboardDom {
 		const shipName = cell.getShip().name
 		const centerOfRotation = cell.coords
 		console.log(`I'm rotating ship ${shipName} around [${centerOfRotation}]...`)
+
+		this.#gameboard.rotateShip(shipName, centerOfRotation)
+		this.updateDeployedShip(shipName)
 	}
 }
 
