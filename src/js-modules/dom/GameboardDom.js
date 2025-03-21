@@ -27,7 +27,7 @@ export default class GameboardDom {
 	#deployedFleetDomShown
 	#deployedFleetAnimationOn
 
-	constructor(gameboard) {
+	constructor(gameboard, canBeModified = false) {
 		this.#gameboard = gameboard
 		this.#cells = new Map()
 		this.#div = this.#initGameboardDiv(gameboard)
@@ -37,6 +37,10 @@ export default class GameboardDom {
 		this.#initFleet()
 		this.#deployedFleetDomShown = false
 		this.#deployedFleetAnimationOn = false
+
+		if (canBeModified) {
+			this.#setEditCallbacks()
+		}
 	}
 
 	// getters
@@ -186,9 +190,7 @@ export default class GameboardDom {
 		return div
 	}
 
-	#getAttackCoordsOnClickCallback(e) {
-		// We have subscribed to one event listener for the gameboard:
-		// We need to retrieve the appropriate cell
+	#getCellOnClick(e) {
 		const targetClassList = e.target.classList
 		if (![...targetClassList].includes("cell")) {
 			// Clicking the element underneath an overlay
@@ -202,7 +204,13 @@ export default class GameboardDom {
 		e.preventDefault()
 
 		const cellDiv = e.target
-		const cell = cellDiv.obj.cell
+		return cellDiv.obj.cell
+	}
+
+	#getAttackCoordsOnClickCallback(e) {
+		// We have subscribed to one event listener for the gameboard:
+		// We need to retrieve the appropriate cell
+		const cell = this.#getCellOnClick(e)
 
 		if (!cell.hasBeenAttacked()) {
 			// exit aiming mode
@@ -212,6 +220,30 @@ export default class GameboardDom {
 
 		PubSub.publish(pubSubTokens.attackCoordsAcquired, cell.coords)
 	}
+
+	#setEditCallbacks() {
+		this.#div.addEventListener(
+			"click",
+			this.#rotateShipOnClickCallback.bind(this)
+		)
+	}
+
+	#rotateShipOnClickCallback(e) {
+		const cell = this.#getCellOnClick(e)
+
+		if (!cell) {
+			return
+		}
+
+		if (!cell.hasShip()) {
+			console.log("No ship to rotate here...")
+			return
+		}
+
+		const shipName = cell.getShip().name
+		const centerOfRotation = cell.coords
+		console.log(`I'm rotating ship ${shipName} around [${centerOfRotation}]...`)
+	}
 }
 
 async function triggerAnimation(div, hide = false) {
@@ -220,8 +252,6 @@ async function triggerAnimation(div, hide = false) {
 	hide
 		? div.classList.remove(animationInitialStateClass)
 		: div.classList.add(animationInitialStateClass)
-
-	console.log("helllo")
 
 	await new Promise((resolve) => requestAnimationFrame(resolve))
 	await new Promise((resolve) =>

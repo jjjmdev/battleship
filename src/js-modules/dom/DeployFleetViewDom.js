@@ -18,7 +18,7 @@ export default class DeployFleetViewDom {
 
 	constructor(player, isAi) {
 		player.randomShipsPlacement()
-		this.#playerDom = new PlayerDom(player)
+		this.#playerDom = new PlayerDom(player, true)
 
 		this.#div = this.#initDeployFleetViewDiv()
 	}

@@ -20,9 +20,9 @@ export default class PlayerDom {
 	#player
 	#gameboardDiv
 
-	constructor(player) {
+	constructor(player, canBeModified = false) {
 		this.#player = player
-		this.#div = this.#initPlayerDiv(player)
+		this.#div = this.#initPlayerDiv(player, canBeModified)
 		this.#div.obj = this
 
 		PubSub.subscribe(
@@ -69,12 +69,12 @@ export default class PlayerDom {
 		this.#gameboardDiv.obj.showAttackOutcome(coords, outcome)
 	}
 
-	#initPlayerDiv(player) {
+	#initPlayerDiv(player, canBeModified) {
 		const div = initDiv(blockName)
 		const h3 = this.#initHeaderDiv(player)
 
 		const gameboardCnt = initDiv(getCssClass("gameboardCnt"))
-		const gameboardDom = new GameboardDom(player.gameboard)
+		const gameboardDom = new GameboardDom(player.gameboard, canBeModified)
 		this.#gameboardDiv = gameboardDom.div
 		gameboardCnt.append(this.#gameboardDiv)
 
