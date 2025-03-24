@@ -235,24 +235,89 @@ export default class GameboardDom {
 
 		this.#div.addEventListener(
 			"pointerdown",
-			this.#startDragCallback.bind(this)
-		)
-
-		this.#div.addEventListener(
-			"click",
-			this.#rotateShipOnClickCallback.bind(this)
+			this.#startEditingPointerDownCallback.bind(this)
 		)
 	}
 
-	#rotateShipOnClickCallback(e) {
-		const point = [e.clientX, e.clientY]
-		const cellDiv = getNestedElementByClass(point, "cell")
+	#startEditingPointerDownCallback(e) {
+		// a single handler for both rotate and drag: the operation to perform is decided using
+		// a displacement threshold: within a given displacement, it is still considered a click
+		// see: https://stackoverflow.com/questions/6042202/how-to-distinguish-mouse-click-and-drag
+		//
+		// dragging based on: https://javascript.info/mouse-drag-and-drop
+		// instead of absolutely positioning the dragging element, a transform translate() will be used
+		e.preventDefault()
 
-		if (cellDiv == null) {
+		// we have subscribed to one event listener for the gameboard: we need to retrieve the appropriate ship div
+		const point = [e.clientX, e.clientY]
+		const shipDiv = getNestedElementByClass(point, "ship")
+
+		// if there is no ship, return
+		if (shipDiv == null) {
 			return
 		}
 
+		// if there is a ship div, there is necessarily a cell div, too, and the corresponding cell has a ship
+		const cellDiv = getNestedElementByClass(point, "cell")
 		const cell = cellDiv.obj.cell
+
+		// save the current transform property of the shipDiv: it will be modified while dragging
+		const origShipDivTransform = shipDiv.style.transform
+
+		// get current coordinates of pointer with respect to window (i.e. clientX, clientY)
+		const origX = e.clientX
+		const origY = e.clientY
+
+		// variables used to distinguish between a simple click and a drag
+		const maxDeltaForClick = 6 // pixels
+		let dragOn = false
+
+		// define the onDrag and endDrag callbacks in here (use the variables defined on the startDrag callbacks)
+
+		function onPointerMoveCallback(e) {
+			const deltaX = e.clientX - origX
+			const deltaY = e.clientY - origY
+
+			if (!dragOn) {
+				const maxDelta = Math.max(Math.abs(deltaX), Math.abs(deltaY))
+				if (maxDelta <= maxDeltaForClick) {
+					// too small displacement: consider it a click
+					return
+				}
+
+				dragOn = true
+			}
+
+			// you are actually dragging
+			// translate the ship to the current pointer coordinates updating the transform property of the shipDiv
+			// remember to include the original transform value
+			shipDiv.style.transform = `translate(${deltaX}px,${deltaY}px) ${origShipDivTransform}`
+		}
+
+		function stopEditingPointerUpCallback() {
+			document.removeEventListener("pointermove", onPointerMoveCallback)
+			document.removeEventListener(
+				"pointerup",
+				stopEditingPointerUpCallbackBinded
+			)
+
+			if (dragOn) {
+				// restore the original transform property
+				shipDiv.style.transform = origShipDivTransform
+			} else {
+				// rotate ship
+				this.#rotateShipAroundCell(cell)
+			}
+		}
+
+		const stopEditingPointerUpCallbackBinded =
+			stopEditingPointerUpCallback.bind(this)
+
+		document.addEventListener("pointermove", onPointerMoveCallback)
+		document.addEventListener("pointerup", stopEditingPointerUpCallbackBinded)
+	}
+
+	#rotateShipAroundCell(cell) {
 		if (!cell.hasShip()) {
 			console.log("No ship to rotate here...")
 			return
@@ -279,52 +344,7 @@ export default class GameboardDom {
 			shipObj.div.ondragstart = () => false
 		})
 	}
-
-	#startDragCallback(e) {
-		// based on: https://javascript.info/mouse-drag-and-drop
-		// instead of absolutely positioning the dragging element, a transform translate() will be used
-		e.preventDefault()
-
-		// we have subscribed to one event listener for the gameboard: we need to retrieve the appropriate ship div
-		const point = [e.clientX, e.clientY]
-		const shipDiv = getNestedElementByClass(point, "ship")
-		if (shipDiv == null) {
-			return
-		}
-
-		// save the current transform property of the shipDiv: it will be modified while dragging
-		const origShipDivTransform = shipDiv.style.transform
-
-		// get current coordinates of pointer with respect to window (i.e. clientX, clientY)
-		const origX = e.clientX
-		const origY = e.clientY
-
-		// define the onDrag and endDrag callbacks in here (use the variables defined on the startDrag callbacks)
-
-		function onDragCallback(e) {
-			// translate the ship to the current pointer coordinates updating the transform property of the shipDiv
-			// remember to include the original transform value
-			const currentX = e.clientX
-			const currentY = e.clientY
-
-			shipDiv.style.transform = `translate(${currentX - origX}px,${
-				currentY - origY
-			}px) ${origShipDivTransform}`
-		}
-
-		function endDragCallback() {
-			// restore the original transform property
-			shipDiv.style.transform = origShipDivTransform
-
-			document.removeEventListener("pointermove", onDragCallback)
-			document.removeEventListener("pointerup", endDragCallback)
-		}
-
-		document.addEventListener("pointermove", onDragCallback)
-		document.addEventListener("pointerup", endDragCallback)
-	}
 }
-
 async function triggerAnimation(div, hide = false) {
 	// this uses a trick to trigger the animation on the element
 
