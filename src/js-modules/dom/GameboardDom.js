@@ -5,6 +5,7 @@ import CellDom from "./CellDom.js"
 import ShipDom from "./ShipDom.js"
 import MissMarkDom from "./MissMarkDom.js"
 import HitMarkDom from "./HitMarkDom.js"
+import { getNestedElementByClass } from "../utils/domUtilities.js"
 
 const blockName = "gameboard"
 const aimingClass = "aiming"
@@ -201,28 +202,17 @@ export default class GameboardDom {
 		return div
 	}
 
-	#getCellOnClick(e) {
-		const targetClassList = e.target.classList
-		if (![...targetClassList].includes("cell")) {
-			// Clicking the element underneath an overlay
-			const origDisplay = e.target.style.display
-			e.target.style.display = "none"
-			document.elementFromPoint(e.clientX, e.clientY).click()
-			e.target.style.display = origDisplay
-			return
-		}
-
-		e.preventDefault()
-
-		const cellDiv = e.target
-		return cellDiv.obj.cell
-	}
-
 	#getAttackCoordsOnClickCallback(e) {
 		// We have subscribed to one event listener for the gameboard:
 		// We need to retrieve the appropriate cell
-		const cell = this.#getCellOnClick(e)
+		const point = [e.clientX, e.clientY]
+		const cellDiv = getNestedElementByClass(point, "cell")
 
+		if (cellDiv == null) {
+			return
+		}
+
+		const cell = cellDiv.obj.cell
 		if (!cell.hasBeenAttacked()) {
 			// exit aiming mode
 			this.#div.classList.remove(aimingClass)
@@ -255,12 +245,14 @@ export default class GameboardDom {
 	}
 
 	#rotateShipOnClickCallback(e) {
-		const cell = this.#getCellOnClick(e)
+		const point = [e.clientX, e.clientY]
+		const cellDiv = getNestedElementByClass(point, "cell")
 
-		if (!cell) {
+		if (cellDiv == null) {
 			return
 		}
 
+		const cell = cellDiv.obj.cell
 		if (!cell.hasShip()) {
 			console.log("No ship to rotate here...")
 			return
@@ -294,16 +286,12 @@ export default class GameboardDom {
 		e.preventDefault()
 
 		// we have subscribed to one event listener for the gameboard: we need to retrieve the appropriate ship div
-		const targetClassList = e.target.classList
-		if (![...targetClassList].includes("ship")) {
-			const origDisplay = e.target.style.display
-			e.target.style.display = "none"
-			document.elementFromPoint(e.clientX, e.clientY).click()
-			e.target.style.display = origDisplay
+		const point = [e.clientX, e.clientY]
+		const shipDiv = getNestedElementByClass(point, "ship")
+		if (shipDiv == null) {
 			return
 		}
 
-		const shipDiv = e.target
 		// save the current transform property of the shipDiv: it will be modified while dragging
 		const origShipDivTransform = shipDiv.style.transform
 
