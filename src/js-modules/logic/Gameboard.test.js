@@ -386,6 +386,38 @@ describe("Gameboard class", () => {
 				shipCellsCoords3_cr_S,
 				"S",
 			])
+
+			gameboard.rotateShip(shipName3, ship3_centerOfRotation)
+			expect(gameboard.getShipPosition(shipName3)).toEqual([
+				shipCellsCoords3_cr_W,
+				"W",
+			])
+		})
+
+		it("can move a deployed ship to a different position", () => {
+			const shipMoveToCell3 = [3, 4]
+			const shipCellsCoords3_W_moved = [
+				[3, 4],
+				[2, 4],
+				[1, 4],
+				[0, 4],
+			]
+			// start from the previous position
+			expect(gameboard.getShipPosition(shipName3)).toEqual([
+				shipCellsCoords3_cr_W,
+				"W",
+			])
+
+			// it is assumed the new stern cell is specified
+			gameboard.startMoveShip(shipName3)
+			gameboard.endMoveShip(shipName3, shipMoveToCell3)
+
+			console.log(gameboard.getShipPosition(shipName3))
+
+			expect(gameboard.getShipPosition(shipName3)).toEqual([
+				shipCellsCoords3_W_moved,
+				"W",
+			])
 		})
 	})
 })
