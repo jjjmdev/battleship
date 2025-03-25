@@ -23,6 +23,7 @@ export default class Gameboard {
 	#notDeployedFleet
 	#sunkFleet
 	#fleetPosition
+	#shipOnMoveData
 
 	constructor(nCols, nRows = nCols) {
 		this.#nCols = nCols
@@ -246,6 +247,30 @@ export default class Gameboard {
 
 		// place the rotated ship
 		this.placeShip(name, sternCoords, newDirection)
+	}
+
+	startMoveShip(name) {
+		if (!this.hasDeployedShip(name)) {
+			throw new Error("This ship is not deployed.")
+		}
+
+		// get the current ship position (and direction)
+		const shipPosition = this.#fleetPosition.get(name)
+
+		// save the current ship direction
+		this.#shipOnMoveData = { direction: shipPosition[1] }
+
+		// reset the ship (remove it from the gameboard)
+		this.resetShip(name)
+	}
+
+	endMoveShip(name, newSternCoords) {
+		// get the saved ship direction from #shipOnMoveData and then reset it
+		const { direction } = this.#shipOnMoveData
+		this.#shipOnMoveData = null
+
+		// place the ship in the new position
+		this.placeShip(name, newSternCoords, direction)
 	}
 
 	getShipPosition(shipName) {
