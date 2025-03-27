@@ -260,6 +260,7 @@ export default class GameboardDom {
 		// if there is a ship div, there is necessarily a cell div, too, and the corresponding cell has a ship
 		const cellDiv = getNestedElementByClass(point, "cell")
 		const cell = cellDiv.obj.cell
+		const shipName = cell.getShip().name
 
 		// save the current transform property of the shipDiv: it will be modified while dragging
 		const origShipDivTransform = shipDiv.style.transform
@@ -286,6 +287,9 @@ export default class GameboardDom {
 				}
 
 				dragOn = true
+
+				// initialize the move of the ship
+				this.#gameboard.startMoveShip(shipName, cell.coords)
 			}
 
 			// you are actually dragging
@@ -294,41 +298,42 @@ export default class GameboardDom {
 			shipDiv.style.transform = `translate(${deltaX}px,${deltaY}px) ${origShipDivTransform}`
 		}
 
-		function stopEditingPointerUpCallback() {
-			document.removeEventListener("pointermove", onPointerMoveCallback)
+		function stopEditingPointerUpCallback(e) {
+			document.removeEventListener("pointermove", onPointerMoveCallbackBinded)
 			document.removeEventListener(
 				"pointerup",
 				stopEditingPointerUpCallbackBinded
 			)
 
 			if (dragOn) {
+				// get the cell in which you have stopped, if it exists
+				// otherwise, return to the original cell
+				const point = [e.clientX, e.clientY]
+				const stopCellDiv = getNestedElementByClass(point, "cell")
+				const toCell = stopCellDiv ? stopCellDiv.obj.cell : cell
+
+				// finalize the move of the ship
+				this.#gameboard.endMoveShip(shipName, toCell.coords)
+
+				// so far, just transforms were used on the ship div: update now the actual position
+				const shipObj = this.#fleetDom.get(shipName)
+				shipObj.updatePosition(...this.#gameboard.getShipPosition(shipName))
+
 				// restore the original transform property
 				shipDiv.style.transform = origShipDivTransform
 			} else {
 				// rotate ship
-				this.#rotateShipAroundCell(cell)
+				this.#gameboard.rotateShip(shipName, cell.coords)
+				this.updateDeployedShip(shipName)
 			}
 		}
 
+		const onPointerMoveCallbackBinded = onPointerMoveCallback.bind(this)
 		const stopEditingPointerUpCallbackBinded =
 			stopEditingPointerUpCallback.bind(this)
 
-		document.addEventListener("pointermove", onPointerMoveCallback)
+		document.addEventListener("pointermove", onPointerMoveCallbackBinded)
 		document.addEventListener("pointerup", stopEditingPointerUpCallbackBinded)
-	}
-
-	#rotateShipAroundCell(cell) {
-		if (!cell.hasShip()) {
-			console.log("No ship to rotate here...")
-			return
-		}
-
-		const shipName = cell.getShip().name
-		const centerOfRotation = cell.coords
-		console.log(`I'm rotating ship ${shipName} around [${centerOfRotation}]...`)
-
-		this.#gameboard.rotateShip(shipName, centerOfRotation)
-		this.updateDeployedShip(shipName)
 	}
 
 	#disableTouchActionOnFleet() {
