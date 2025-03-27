@@ -639,6 +639,10 @@ button:active {
 }
 
 /* animation class */
+.no-transition {
+	transition: none !important;
+}
+
 .player__name-span {
 	transition: color var(--time-animation),
 		background-color var(--time-animation);
