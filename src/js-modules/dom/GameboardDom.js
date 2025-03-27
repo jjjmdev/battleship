@@ -24,7 +24,8 @@ document.documentElement.style.setProperty(
 export default class GameboardDom {
 	#gameboard
 	#div
-	#attackCallback
+	#getAttackCoordsOnClickCallbackBinded
+	#startEditingPointerDownCallbackBinded
 	#cells
 	#fleetDom
 	#deployedFleetDomShown
@@ -35,6 +36,11 @@ export default class GameboardDom {
 		this.#cells = new Map()
 		this.#div = this.#initGameboardDiv(gameboard)
 		this.#div.obj = this
+
+		this.#getAttackCoordsOnClickCallbackBinded =
+			this.#getAttackCoordsOnClickCallback.bind(this)
+		this.#startEditingPointerDownCallbackBinded =
+			this.#startEditingPointerDownCallback.bind(this)
 
 		this.#fleetDom = new Map()
 		this.#initFleet()
@@ -78,8 +84,11 @@ export default class GameboardDom {
 
 	enableAiming() {
 		this.#div.classList.add(aimingClass)
-		this.#attackCallback = this.#getAttackCoordsOnClickCallback.bind(this)
-		this.#div.addEventListener("click", this.#attackCallback)
+
+		this.#div.addEventListener(
+			"click",
+			this.#getAttackCoordsOnClickCallbackBinded
+		)
 	}
 
 	#createShipDom(shipName) {
@@ -218,7 +227,10 @@ export default class GameboardDom {
 		if (!cell.hasBeenAttacked()) {
 			// exit aiming mode
 			this.#div.classList.remove(aimingClass)
-			this.#div.removeEventListener("click", this.#attackCallback)
+			this.#div.removeEventListener(
+				"click",
+				this.#getAttackCoordsOnClickCallbackBinded
+			)
 		}
 
 		PubSub.publish(pubSubTokens.attackCoordsAcquired, cell.coords)
@@ -237,7 +249,7 @@ export default class GameboardDom {
 
 		this.#div.addEventListener(
 			"pointerdown",
-			this.#startEditingPointerDownCallback.bind(this)
+			this.#startEditingPointerDownCallbackBinded
 		)
 	}
 
@@ -258,6 +270,11 @@ export default class GameboardDom {
 		if (shipDiv == null) {
 			return
 		}
+
+		this.#div.removeEventListener(
+			"pointerdown",
+			this.#startEditingPointerDownCallbackBinded
+		)
 
 		// if there is a ship div, there is necessarily a cell div, too, and the corresponding cell has a ship
 		const cellDiv = getNestedElementByClass(point, "cell")
@@ -354,6 +371,11 @@ export default class GameboardDom {
 				this.#gameboard.rotateShip(shipName, cell.coords)
 				await this.updateDeployedShip(shipName)
 			}
+
+			this.#div.addEventListener(
+				"pointerdown",
+				this.#startEditingPointerDownCallbackBinded
+			)
 		}
 
 		const onPointerMoveCallbackBinded = onPointerMoveCallback.bind(this)
