@@ -421,7 +421,7 @@ describe("Gameboard class", () => {
 				])
 			})
 
-			it("can restore the original position when moving a deployed ship to an invalid position", () => {
+			it("restores the original position when moving a deployed ship to an invalid position", () => {
 				const shipMoveToCell3_invalid = [1, 8]
 
 				// start from the previous position
@@ -440,7 +440,7 @@ describe("Gameboard class", () => {
 				])
 			})
 
-			it("can restore the original position when no new position is specified", () => {
+			it("restores the original position when no new position is specified", () => {
 				// start from the previous position
 				expect(gameboard.getShipPosition(shipName3)).toEqual([
 					shipCellsCoords3_W_moved,
@@ -457,16 +457,16 @@ describe("Gameboard class", () => {
 				])
 			})
 
+			const shipCellsCoords3_W_moved_relative = [
+				[4, 6],
+				[3, 6],
+				[2, 6],
+				[1, 6],
+			]
+
 			it("can move a deployed ship to a different position relative to a non-stern ship coordinate", () => {
 				const shipMoveFromCell3_relative = [1, 4]
 				const shipMoveToCell3_relative = [2, 6]
-				const shipCellsCoords3_W_moved_relative = [
-					[4, 6],
-					[3, 6],
-					[2, 6],
-					[1, 6],
-				]
-
 				// start from the previous position
 				expect(gameboard.getShipPosition(shipName3)).toEqual([
 					shipCellsCoords3_W_moved,
@@ -482,6 +482,22 @@ describe("Gameboard class", () => {
 					shipCellsCoords3_W_moved_relative,
 					"W",
 				])
+			})
+
+			it("returns true if the deployed ship is actually moved to a different position, and false otherwise", () => {
+				// start from the previous position
+				expect(gameboard.getShipPosition(shipName3)).toEqual([
+					shipCellsCoords3_W_moved_relative,
+					"W",
+				])
+
+				gameboard.startMoveShip(shipName3)
+				const successMove = gameboard.endMoveShip(shipName3, [4, 8])
+				expect(successMove).toBeTruthy()
+
+				gameboard.startMoveShip(shipName3)
+				const failMove = gameboard.endMoveShip(shipName3, [2, 2])
+				expect(failMove).toBeFalsy()
 			})
 		})
 	})
