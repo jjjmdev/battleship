@@ -261,7 +261,7 @@ export default class Gameboard {
 		this.placeShip(name, newSternCoords, newDirection)
 	}
 
-	startMoveShip(name) {
+	startMoveShip(name, optionalRelativeToCoords = null) {
 		if (!this.hasDeployedShip(name)) {
 			throw new Error("This ship is not deployed.")
 		}
@@ -270,25 +270,40 @@ export default class Gameboard {
 		const [cellCoords, direction] = this.#fleetPosition.get(name)
 		const sternCoords = cellCoords[0]
 
-		// save the current ship stern position and direction
-		this.#shipOnMoveData = { sternCoords, direction }
+		// get the "relative to" coordinates: if the optionalRelativeToCoords is omitted
+		// this defaults to sternCoords
+		const relativeToCoords = optionalRelativeToCoords
+			? optionalRelativeToCoords
+			: sternCoords
+
+		// compute the offset of the "relative to" coordinates from the stern
+		const offset = this.#offsetRelativeToStern(relativeToCoords, cellCoords)
+
+		// save the current ship stern position, direction, and offset
+		this.#shipOnMoveData = { sternCoords, direction, offset }
 
 		// reset the ship (remove it from the gameboard)
 		this.resetShip(name)
 	}
 
-	endMoveShip(name, newSternCoords = null) {
+	endMoveShip(name, newRelativeCoords = null) {
 		// NOTE: this assumes no other ship is deployed/edited in the original ship position between startMoveShip() and this method call
 
-		// get the saved ship direction from #shipOnMoveData and then reset it
-		const { sternCoords, direction } = this.#shipOnMoveData
+		// get the saved ship position, direction, and offset from #shipOnMoveData and then reset it
+		const { sternCoords, direction, offset } = this.#shipOnMoveData
 		this.#shipOnMoveData = null
 
+		// get the new stern coords
+		// use the saved sternCoords if newRelativeCoords is omitted
+		// which defaults it to the old position
+		const newSternCoords = newRelativeCoords
+			? this.#sternFromOffset(newRelativeCoords, offset, direction)
+			: sternCoords
+
 		// if you can't place it in the new position, restore the old one
-		const nextSternCoords =
-			newSternCoords && this.canPlaceShip(name, newSternCoords, direction)
-				? newSternCoords
-				: sternCoords
+		const nextSternCoords = this.canPlaceShip(name, newSternCoords, direction)
+			? newSternCoords
+			: sternCoords
 		// place the ship in the new position
 		this.placeShip(name, nextSternCoords, direction)
 	}
