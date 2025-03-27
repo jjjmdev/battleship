@@ -213,7 +213,18 @@ export default class Gameboard {
 		this.#fleetPosition.set(name, null)
 	}
 
-	rotateShip(name, centerOfRotation = null) {
+	#offsetRelativeToStern(relativeToCoord, cellCoords) {
+		const [centerCol, centerRow] = relativeToCoord
+		return cellCoords.findIndex(([c, r]) => c === centerCol && r === centerRow)
+	}
+
+	#sternFromOffset(relativeToCoord, offset, direction) {
+		const [col, row] = relativeToCoord
+		const [cDisp, rDisp] = directionDisplacement[direction]
+		return [col - offset * cDisp, row - offset * rDisp]
+	}
+
+	rotateShip(name, optionalCenterOfRotation = null) {
 		if (!this.hasDeployedShip(name)) {
 			throw new Error("The ship is not deployed.")
 		}
@@ -222,13 +233,13 @@ export default class Gameboard {
 		const [cellCoords, direction] = this.#fleetPosition.get(name)
 
 		// compute the center of rotation coordinates
-		const [centerCol, centerRow] =
-			centerOfRotation == null ? cellCoords[0] : centerOfRotation
-
+		const centerOfRotation =
+			optionalCenterOfRotation == null
+				? cellCoords[0]
+				: optionalCenterOfRotation
+		const [centerCol, centerRow] = centerOfRotation
 		// compute the offset of the center of rotation from the stern
-		const offset = cellCoords.findIndex(
-			([c, r]) => c === centerCol && r === centerRow
-		)
+		const offset = this.#offsetRelativeToStern(centerOfRotation, cellCoords)
 
 		// reset the ship (remove it from the gameboard)
 		this.resetShip(name)
@@ -236,17 +247,18 @@ export default class Gameboard {
 		// find a direction where you could place the rotated ship
 		// note that this loop is finite, since at most you return to the original direction
 		let newDirection = direction
-		let sternCoords
+		let newSternCoords
 		do {
 			newDirection = directionNext[newDirection]
-			const [cDispl, rDispl] = directionDisplacement[newDirection]
-
-			// you also need to find the updated stern coordinates
-			sternCoords = [centerCol - offset * cDispl, centerRow - offset * rDispl]
-		} while (!this.canPlaceShip(name, sternCoords, newDirection))
+			newSternCoords = this.#sternFromOffset(
+				centerOfRotation,
+				offset,
+				newDirection
+			)
+		} while (!this.canPlaceShip(name, newSternCoords, newDirection))
 
 		// place the rotated ship
-		this.placeShip(name, sternCoords, newDirection)
+		this.placeShip(name, newSternCoords, newDirection)
 	}
 
 	startMoveShip(name) {
