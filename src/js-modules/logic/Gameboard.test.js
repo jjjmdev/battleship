@@ -412,7 +412,30 @@ describe("Gameboard class", () => {
 			gameboard.startMoveShip(shipName3)
 			gameboard.endMoveShip(shipName3, shipMoveToCell3)
 
-			console.log(gameboard.getShipPosition(shipName3))
+			expect(gameboard.getShipPosition(shipName3)).toEqual([
+				shipCellsCoords3_W_moved,
+				"W",
+			])
+		})
+
+		it("can restore the original position when moving a deployed ship to an invalid position", () => {
+			const shipMoveToCell3_invalid = [1, 8]
+			const shipCellsCoords3_W_moved = [
+				[3, 4],
+				[2, 4],
+				[1, 4],
+				[0, 4],
+			]
+
+			// start from the previous position
+			expect(gameboard.getShipPosition(shipName3)).toEqual([
+				shipCellsCoords3_W_moved,
+				"W",
+			])
+
+			// it is assumed the new stern cell is specified
+			gameboard.startMoveShip(shipName3)
+			gameboard.endMoveShip(shipName3, shipMoveToCell3_invalid)
 
 			expect(gameboard.getShipPosition(shipName3)).toEqual([
 				shipCellsCoords3_W_moved,
