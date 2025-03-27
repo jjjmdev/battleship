@@ -254,23 +254,30 @@ export default class Gameboard {
 			throw new Error("This ship is not deployed.")
 		}
 
-		// get the current ship position (and direction)
-		const shipPosition = this.#fleetPosition.get(name)
+		// get the current ship position and direction
+		const [cellCoords, direction] = this.#fleetPosition.get(name)
+		const sternCoords = cellCoords[0]
 
-		// save the current ship direction
-		this.#shipOnMoveData = { direction: shipPosition[1] }
+		// save the current ship stern position and direction
+		this.#shipOnMoveData = { sternCoords, direction }
 
 		// reset the ship (remove it from the gameboard)
 		this.resetShip(name)
 	}
 
 	endMoveShip(name, newSternCoords) {
+		// NOTE: this assumes no other ship is deployed/edited in the original ship position between startMoveShip() and this method call
+
 		// get the saved ship direction from #shipOnMoveData and then reset it
-		const { direction } = this.#shipOnMoveData
+		const { sternCoords, direction } = this.#shipOnMoveData
 		this.#shipOnMoveData = null
 
+		// if you can't place it in the new position, restore the old one
+		const nextSternCoords = this.canPlaceShip(name, newSternCoords, direction)
+			? newSternCoords
+			: sternCoords
 		// place the ship in the new position
-		this.placeShip(name, newSternCoords, direction)
+		this.placeShip(name, nextSternCoords, direction)
 	}
 
 	getShipPosition(shipName) {
