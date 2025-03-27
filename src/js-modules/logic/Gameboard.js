@@ -306,6 +306,8 @@ export default class Gameboard {
 			: sternCoords
 		// place the ship in the new position
 		this.placeShip(name, nextSternCoords, direction)
+
+		return nextSternCoords.some((itm, idx) => itm !== sternCoords[idx])
 	}
 
 	getShipPosition(shipName) {
