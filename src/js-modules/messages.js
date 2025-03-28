@@ -3,6 +3,9 @@ const home = [
 	"Fair winds and following seas! Until next battle...",
 ]
 
+const editInstructions =
+	"Click/tap on a ship to rotate it. Drag and drop to move it."
+
 const gameEnd = {
 	win1: ["VICTORY!", "Your fleet sails victorious across the seven seas!"],
 	defeat1: ["GAME OVER!", "Your fleet has been reclaimed by the sea..."],
@@ -10,6 +13,10 @@ const gameEnd = {
 		`Well done, ${winnerPlayerName}!`,
 		`All ${defeatPlayerName}'s ships are lost to the depths.`,
 	],
+}
+
+export function getEditInstructionsMessage() {
+	return editInstructions
 }
 
 export function getGameEndMessage(

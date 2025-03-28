@@ -1,6 +1,12 @@
-import { initDiv, initP, initButton, initHeader } from "../utils/domComponents"
-import PlayerDom from "./PlayerDom"
-import { pubSubTokens, pubSubTokensUi } from "../pubSubTokens"
+import {
+	initDiv,
+	initP,
+	initButton,
+	initHeader,
+} from "../utils/domComponents.js"
+import PlayerDom from "./PlayerDom.js"
+import { pubSubTokens, pubSubTokensUi } from "../pubSubTokens.js"
+import { getEditInstructionsMessage } from "../../js-modules/messages.js"
 import PubSub from "pubsub-js"
 
 const blockName = "deploy-fleet"
@@ -9,6 +15,7 @@ const cssClass = {
 	playerDiv: "player-div",
 	btns: "btns",
 	msgP: "msg-p",
+	editInstructionsP: "edit-instructions-p",
 }
 const getCssClass = (element) => `${blockName}__${cssClass[element]}`
 
@@ -33,6 +40,7 @@ export default class DeployFleetViewDom {
 		// todo
 		const header = this.#initHeader()
 		const playerDiv = initDiv(getCssClass("playerDiv"))
+		this.#playerDom.div.append(this.#initEditInstructions())
 		playerDiv.append(this.#playerDom.div)
 
 		// show the ships
@@ -41,7 +49,6 @@ export default class DeployFleetViewDom {
 		)
 
 		const msgP = this.#initGameMsg()
-
 		div.append(header, playerDiv, msgP)
 
 		return div
@@ -58,6 +65,11 @@ export default class DeployFleetViewDom {
 		header.append(buttonsDiv)
 
 		return header
+	}
+
+	#initEditInstructions() {
+		const msg = getEditInstructionsMessage()
+		return initP(getCssClass("editInstructionsP"), msg)
 	}
 
 	#initGameMsg() {
