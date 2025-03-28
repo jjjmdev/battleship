@@ -253,6 +253,49 @@ export default class GameboardDom {
 		)
 	}
 
+	async updateMovedDeployedShip(
+		shipName,
+		origCellDiv,
+		toCellDiv,
+		origShipDivTransform
+	) {
+		// this helper method actually moves a deployed ship when it has been moved
+		// compute the translation of the ship when placed on the toCell
+		// note that so far the ship position was free, now it is forced to stay in the grid cells
+
+		const shipObj = this.#fleetDom.get(shipName)
+		const shipDiv = shipObj.div
+
+		// also, to allow for a smooth transition, first translate the ship in the original position
+
+		const fromcellRect = origCellDiv.getBoundingClientRect()
+		const toCellRect = toCellDiv.getBoundingClientRect()
+
+		const deltaX = toCellRect.x - fromcellRect.x
+		const deltaY = toCellRect.y - fromcellRect.y
+
+		shipDiv.style.transform = `translate(${deltaX}px,${deltaY}px) ${origShipDivTransform}`
+
+		// wait for the translation animation to end
+		await waitForAsync(animationDuration)
+
+		// set the .no-transition class on this ship: we want the next few operations to occur instantaneously
+		shipDiv.classList.add(noTransitionClass)
+		await ensureCssClassForAnimationAsync()
+
+		// so far, just transforms were used on the ship div: now update the actual position
+		shipObj.updatePosition(...this.#gameboard.getShipPosition(shipName))
+
+		// restore the original transform property
+		shipDiv.style.transform = origShipDivTransform
+
+		// wait for a few ms to ensure the previous operations were performed, and then remove the no transition class
+		await ensureCssClassForAnimationAsync()
+		await waitForAsync(waitDomDelay)
+
+		shipDiv.classList.remove(noTransitionClass)
+	}
+
 	#startEditingPointerDownCallback(e) {
 		// a single handler for both rotate and drag: the operation to perform is decided using
 		// a displacement threshold: within a given displacement, it is still considered a click
@@ -277,9 +320,9 @@ export default class GameboardDom {
 		)
 
 		// if there is a ship div, there is necessarily a cell div, too, and the corresponding cell has a ship
-		const cellDiv = getNestedElementByClass(point, "cell")
-		const cell = cellDiv.obj.cell
-		const shipName = cell.getShip().name
+		const origCellDiv = getNestedElementByClass(point, "cell")
+		const origCell = origCellDiv.obj.cell
+		const shipName = origCell.getShip().name
 
 		// save the current transform property of the shipDiv: it will be modified while dragging
 		const origShipDivTransform = shipDiv.style.transform
@@ -308,7 +351,7 @@ export default class GameboardDom {
 				dragOn = true
 
 				// initialize the move of the ship
-				this.#gameboard.startMoveShip(shipName, cell.coords)
+				this.#gameboard.startMoveShip(shipName, origCell.coords)
 				shipDiv.classList.add(onDragClass)
 			}
 
@@ -330,48 +373,20 @@ export default class GameboardDom {
 				// otherwise, return to the original cell
 				const point = [e.clientX, e.clientY]
 				const stopCellDiv = getNestedElementByClass(point, "cell")
-				const toCell = stopCellDiv ? stopCellDiv.obj.cell : cell
+				const toCell = stopCellDiv ? stopCellDiv.obj.cell : origCell
 
 				// finalize the move of the ship
 				const hasMoved = this.#gameboard.endMoveShip(shipName, toCell.coords)
-
-				// compute the translation of the ship when placed on the toCell
-				// note that so far the ship position was free, now it is forced to stay in the grid cells
-
-				// also, to allow for a smooth transition, first translate the ship in the original position
-
-				const cellRect = cellDiv.getBoundingClientRect()
-				const toCellRect = hasMoved
-					? stopCellDiv.getBoundingClientRect()
-					: cellRect
-
-				const deltaX = toCellRect.x - cellRect.x
-				const deltaY = toCellRect.y - cellRect.y
-
-				shipDiv.style.transform = `translate(${deltaX}px,${deltaY}px) ${origShipDivTransform}`
-
-				// wait for the translation animation to end
-				await waitForAsync(animationDuration)
-
-				// set the .no-transition class on this ship: we want the next few operations to occur instantaneously
-				shipDiv.classList.add(noTransitionClass)
-				await ensureCssClassForAnimationAsync()
-
-				// so far, just transforms were used on the ship div: update now the actual position
-				const shipObj = this.#fleetDom.get(shipName)
-				shipObj.updatePosition(...this.#gameboard.getShipPosition(shipName))
-
-				// restore the original transform property
-				shipDiv.style.transform = origShipDivTransform
-
-				// wait for a few ms to ensure the previous operations were performed, and then remove the no transition class
-				await ensureCssClassForAnimationAsync()
-				await waitForAsync(waitDomDelay)
-				shipDiv.classList.remove(noTransitionClass)
+				await this.updateMovedDeployedShip(
+					shipName,
+					origCellDiv,
+					hasMoved ? stopCellDiv : origCellDiv,
+					origShipDivTransform
+				)
 				shipDiv.classList.remove(onDragClass)
 			} else {
 				// rotate ship
-				this.#gameboard.rotateShip(shipName, cell.coords)
+				this.#gameboard.rotateShip(shipName, origCell.coords)
 				await this.updateDeployedShip(shipName)
 			}
 
