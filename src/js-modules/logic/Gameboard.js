@@ -310,6 +310,10 @@ export default class Gameboard {
 	endMoveShip(name, newRelativeCoords = null) {
 		// NOTE: this assumes no other ship is deployed/edited in the original ship position between startMoveShip() and this method call
 
+		if (!this.#shipOnMoveData) {
+			throw new Error("No ship is being moved")
+		}
+
 		// get the saved ship position, direction, and offset from #shipOnMoveData and then reset it
 		const { sternCoords, direction, offset } = this.#shipOnMoveData
 		this.#shipOnMoveData = null
