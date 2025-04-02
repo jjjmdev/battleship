@@ -1,6 +1,5 @@
 import Cell from "./Cell.js"
 import Ship from "./Ship.js"
-import { randomInt } from "../utils/math.js"
 
 const directionDisplacement = {
 	N: [0, -1],
@@ -280,13 +279,13 @@ export default class Gameboard {
 		const offset = this.#offsetRelativeToStern(relativeToCoords, cellCoords)
 
 		// save the current ship stern position, direction, and offset
-		this.#shipOnMoveData = { sternCoords, direction, offset }
+		this.#shipOnMoveData = { name, sternCoords, direction, offset }
 
 		// reset the ship (remove it from the gameboard)
 		this.resetShip(name)
 	}
 
-	canPlaceShipOnMove(name, testRelativeCoords) {
+	canPlaceShipOnMove(testRelativeCoords) {
 		// test if the ship being moved could be placed in a given position, returning true or false
 		// the ship is not actually placed
 
@@ -295,7 +294,7 @@ export default class Gameboard {
 		}
 
 		// get the saved ship stern direction and offset from #shipOnMoveData
-		const { direction, offset } = this.#shipOnMoveData
+		const { name, direction, offset } = this.#shipOnMoveData
 
 		// get the new stern coords
 		const testSternCoords = this.#sternFromOffset(
@@ -307,7 +306,7 @@ export default class Gameboard {
 		return this.canPlaceShip(name, testSternCoords, direction)
 	}
 
-	endMoveShip(name, newRelativeCoords = null) {
+	endMoveShip(newRelativeCoords = null) {
 		// NOTE: this assumes no other ship is deployed/edited in the original ship position between startMoveShip() and this method call
 
 		if (!this.#shipOnMoveData) {
@@ -315,7 +314,7 @@ export default class Gameboard {
 		}
 
 		// get the saved ship position, direction, and offset from #shipOnMoveData and then reset it
-		const { sternCoords, direction, offset } = this.#shipOnMoveData
+		const { name, sternCoords, direction, offset } = this.#shipOnMoveData
 		this.#shipOnMoveData = null
 
 		// get the new stern coords
