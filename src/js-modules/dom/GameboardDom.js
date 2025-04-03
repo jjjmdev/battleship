@@ -252,9 +252,9 @@ export default class GameboardDom {
 				"click",
 				this.#getAttackCoordsOnClickCallbackBinded
 			)
-		}
 
-		PubSub.publish(pubSubTokens.attackCoordsAcquired, cell.coords)
+			PubSub.publish(pubSubTokens.attackCoordsAcquired, cell.coords)
+		}
 	}
 
 	#setEditCallbacks() {
