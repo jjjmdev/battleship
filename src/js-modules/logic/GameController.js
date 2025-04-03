@@ -11,14 +11,28 @@ export default class GameController {
 	#player2
 	#current // Current player turn
 	#opponent // Next player turn
-
 	#versusAi
+	#actualMsgDelay
+	#showMsg
 
-	constructor(player1Name, player2Name, versusAi = true, aiSkills = null) {
+	constructor(
+		player1Name,
+		player2Name,
+		versusAi = true,
+		aiSkills = null,
+		showMsg = true
+	) {
 		this.#player1 = this.#initPlayer(player1Name)
 		this.#player2 = this.#initPlayer(player2Name, versusAi, aiSkills)
 
 		this.#versusAi = versusAi
+
+		// subscribe to PubSub token to be able to disable the game state messages and speed up the game
+		this.#showMsg = showMsg
+		const toggleShowMsg = () => (this.#showMsg = !this.#showMsg)
+		this.#actualMsgDelay = () => (this.#showMsg ? msgDelay : 0)
+		PubSub.subscribe(pubSubTokensUi.toggleShowMsg, toggleShowMsg.bind(this))
+
 		this.#initGame()
 	}
 
@@ -54,7 +68,7 @@ export default class GameController {
 			PubSub.publish(pubSubTokensUi.toggleDeployedFleetShown(this.#player1))
 		}
 
-		PubSub.publish(pubSubTokens.playersSwitch, {
+		PubSub.publish(pubSubTokensUi.playersSwitch, {
 			player: this.#current,
 			isAIPlayer: this.#isAIPlayer(),
 		})
@@ -72,7 +86,7 @@ export default class GameController {
 
 		PubSub.publish(pubSubTokensUi.setGameStatusMsg, statusMsg)
 
-		PubSub.publish(pubSubTokens.playersSwitch, {
+		PubSub.publish(pubSubTokensUi.playersSwitch, {
 			player: this.#current,
 			isAIPlayer: this.#isAIPlayer(),
 		})
@@ -194,7 +208,7 @@ export default class GameController {
 				PubSub.publish(pubSubTokensUi.setGameStatusMsg, statusMsg)
 				this.#showAttackOutcome(coords, outcome)
 			},
-			this.#isAIPlayer() ? Math.max(aiMoveDelay, msgDelay) : 0
+			this.#isAIPlayer() ? Math.max(aiMoveDelay, this.#actualMsgDelay()) : 0
 		)
 	}
 
@@ -293,6 +307,6 @@ export default class GameController {
 		setTimeout(() => {
 			this.#switchCurrentPlayer()
 			PubSub.publish(pubSubTokens.playTurn)
-		}, msgDelay)
+		}, this.#actualMsgDelay())
 	}
 }

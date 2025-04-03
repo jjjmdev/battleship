@@ -14,6 +14,7 @@ const cssClass = {
 	playersDiv: "players-div",
 	playerDiv: "player-div",
 	msgP: "msg-p",
+	btns: "btns",
 }
 
 const getCssClass = (element) => `${blockName}__${cssClass[element]}`
@@ -24,10 +25,15 @@ export default class GameViewDom {
 	#currentPlayer
 	#versusAi
 	#showCurrentPlayerDeployedFleetCallbackBinded
+	#toggleShowMsgCallbackBinded
+
+	#msgP
 
 	constructor(player1, player2, versusAi) {
 		this.#showCurrentPlayerDeployedFleetCallbackBinded =
 			this.#showCurrentPlayerDeployedFleetCallback.bind(this)
+
+		this.#toggleShowMsgCallbackBinded = this.#toggleShowMsgCallback.bind(this)
 
 		this.#playersDom = [new PlayerDom(player1), new PlayerDom(player2)]
 		this.#versusAi = versusAi
@@ -38,7 +44,7 @@ export default class GameViewDom {
 		this.#currentPlayer = player1
 
 		PubSub.subscribe(
-			pubSubTokens.playersSwitch,
+			pubSubTokensUi.playersSwitch,
 			(token, { player, isAIPlayer }) => {
 				this.#currentPlayer = player
 				this.isAIPlayer = isAIPlayer
@@ -65,6 +71,7 @@ export default class GameViewDom {
 
 		playersDiv.append(player1Div, player2Div)
 		const msgP = this.#initGameMsg()
+		this.#msgP = msgP
 
 		div.append(header, playersDiv, msgP)
 
@@ -73,13 +80,16 @@ export default class GameViewDom {
 
 	#initHeader() {
 		const header = initHeader(getCssClass("header"))
-		const toggleBtn = this.#initToggleFleetBtn()
+
+		const buttonsDiv = initDiv(getCssClass("btns"))
+		const showFleetBtn = this.#initShowFleetBtn()
+		const toggleShowMsgBtn = this.#initToggleShowMsgBtn()
 
 		if (this.#versusAi) {
-			toggleBtn.style.visibility = "hidden"
+			showFleetBtn.style.display = "none"
 		}
-
-		header.append(toggleBtn)
+		buttonsDiv.append(showFleetBtn, toggleShowMsgBtn)
+		header.append(buttonsDiv)
 		return header
 	}
 
@@ -96,13 +106,29 @@ export default class GameViewDom {
 		return p
 	}
 
-	#initToggleFleetBtn() {
+	#initShowFleetBtn() {
 		const btn = initButton(
 			"btn",
 			this.#showCurrentPlayerDeployedFleetCallbackBinded,
 			null,
 			"Toggle My Fleet"
 		)
+		return btn
+	}
+
+	#toggleShowMsgCallback() {
+		PubSub.publish(pubSubTokensUi.toggleShowMsg)
+		this.#msgP.classList.toggle("hidden")
+	}
+
+	#initToggleShowMsgBtn() {
+		const btn = initButton(
+			"btn",
+			this.#toggleShowMsgCallbackBinded,
+			"button",
+			"Toggle Messages"
+		)
+
 		return btn
 	}
 

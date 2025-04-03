@@ -11,7 +11,6 @@ export const pubSubTokens = {
 	playTurn: "PLAY TURN",
 	attackCoordsAcquired: "ATTACK COORDS ACQUIRED",
 	attackOutcomeShown: "ATTACK OUTCOME SHOWN",
-	playersSwitch: "PLAYERS SWITCH",
 }
 
 export const pubSubTopicUi = "ui"
@@ -27,5 +26,7 @@ export const pubSubTokensUi = {
 		`ui: HIDE DEPLOYED FLEET ON ${player.name} GAMEBOARD`,
 	updateDeployedFleetShown: (player) =>
 		`ui: UPDATE DEPLOYED FLEET ON ${player.name} GAMEBOARD`,
+	playersSwitch: "PLAYERS SWITCH",
 	setGameStatusMsg: "SET THE GAME STATUS MESSAGE",
+	toggleShowMsg: "TOGGLE SHOW MESSAGES",
 }
