@@ -1,4 +1,4 @@
-import { initFooter, initP } from "./utils/domComponents"
+import { initFooter, initP } from "../utils/domComponents.js"
 
 export default function initMainFooter() {
 	const footer = initFooter("main-footer")

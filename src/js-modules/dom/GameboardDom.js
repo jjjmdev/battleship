@@ -5,7 +5,12 @@ import CellDom from "./CellDom.js"
 import ShipDom from "./ShipDom.js"
 import MissMarkDom from "./MissMarkDom.js"
 import HitMarkDom from "./HitMarkDom.js"
-import { getNestedElementByClass } from "../utils/domUtilities.js"
+import {
+	getNestedElementByClass,
+	waitForAsync,
+	ensureCssClassForAnimationAsync,
+	triggerAnimation,
+} from "../utils/domUtilities.js"
 import { animationDuration, waitDomDelay } from "../delays.js"
 
 const blockName = "gameboard"
@@ -74,7 +79,11 @@ export default class GameboardDom {
 			: new MissMarkDom(coords)
 		this.#div.append(outcomeMarkDom.div)
 
-		await triggerAnimation(outcomeMarkDom.div)
+		await triggerAnimation(
+			outcomeMarkDom.div,
+			animationInitialStateClass,
+			animationDuration
+		)
 
 		if (outcome.isSunk) {
 			const shipName = outcome.sunkShip.name
@@ -105,12 +114,21 @@ export default class GameboardDom {
 	async #showShip(shipObj) {
 		// the function is async, and awaits for the ship show animation, if any
 		this.#div.append(shipObj.div)
-		await triggerAnimation(shipObj.div)
+		await triggerAnimation(
+			shipObj.div,
+			animationInitialStateClass,
+			animationDuration
+		)
 	}
 
 	async #hideShip(shipObj) {
 		// the function is async, and awaits for the ship show animation, if any
-		await triggerAnimation(shipObj.div, true)
+		await triggerAnimation(
+			shipObj.div,
+			animationInitialStateClass,
+			animationDuration,
+			true
+		)
 		// wait for the animation end before removing it
 		this.#div.removeChild(shipObj.div)
 	}
@@ -475,28 +493,4 @@ export default class GameboardDom {
 			shipObj.div.ondragstart = () => false
 		})
 	}
-}
-
-function waitForAsync(waitInMs) {
-	return new Promise((resolve) => setTimeout(resolve, waitInMs))
-}
-
-async function ensureCssClassForAnimationAsync() {
-	await new Promise((resolve) => requestAnimationFrame(resolve))
-	await waitForAsync(0)
-}
-
-async function triggerAnimation(div, hide = false) {
-	// this uses a trick to trigger the animation on the element
-
-	hide
-		? div.classList.remove(animationInitialStateClass)
-		: div.classList.add(animationInitialStateClass)
-
-	await ensureCssClassForAnimationAsync()
-
-	div.classList.toggle(animationInitialStateClass)
-
-	// wait for the animation to end before removing it
-	return waitForAsync(animationDuration)
 }
