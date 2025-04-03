@@ -15,13 +15,13 @@ You can play in 2 player mode, or in 1 player mode. In 1 player mode, you play a
 
 - **improvedHuntTarget**: the same as the huntTarget one. However, in hunt mode, not all cells are considered, but just the ones for which:
 
-```math
+```
 (row + col) & opponentMinShipSize === offset
 ```
 
 where `opponentMinShipSize` is the minimum unsunk ship size of the opponent, and `offset` is a number between $0$ and $opponentMinShipSize-1$, such that the set:
 
-```math
+```
 {(row,col) such that (row + col) % opponentMinShipSize === offset}
 ```
 
