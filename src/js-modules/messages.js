@@ -17,6 +17,14 @@ const deployFleet = {
 		`It's your turn now, ${playerName}! Deploy your fleet once your opponent isn't watching.`,
 }
 
+const firstMove = {
+	player_1p: "By fate's roll, you start the battle. Fire the opening shot!",
+	playerAi_1p:
+		"By fate's roll, your enemy begins. Prepare for the opening shot!",
+	player_2p: (playerName) =>
+		`By fate's roll, you start the battle, ${playerName}. Fire the opening shot!`,
+}
+
 const gameEnd = {
 	win_1p: ["VICTORY!", "Your fleet sails victorious across the seven seas!"],
 	defeat_1p: ["GAME OVER!", "Your fleet has been reclaimed by the sea..."],
@@ -43,6 +51,18 @@ export function getDeployFleetMessage({ playerName, isPlayer1, versusAi }) {
 		} else {
 			return deployFleet.player2_2p(playerName)
 		}
+	}
+}
+
+export function getFirstPlayerMessage(playerName, versusAi, isPlayerAi) {
+	if (versusAi) {
+		if (isPlayerAi) {
+			return firstMove.playerAi_1p
+		} else {
+			return firstMove.player_1p
+		}
+	} else {
+		return firstMove.player_2p(playerName)
 	}
 }
 

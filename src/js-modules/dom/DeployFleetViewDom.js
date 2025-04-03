@@ -59,7 +59,6 @@ export default class DeployFleetViewDom {
 
 	#initDeployFleetViewDiv() {
 		const div = initDiv(blockName)
-		// todo
 		const header = this.#initHeader()
 		const playerDiv = initDiv(getCssClass("playerDiv"))
 		this.#playerDom.div.append(this.#initEditInstructions())
@@ -102,7 +101,6 @@ export default class DeployFleetViewDom {
 	}
 
 	#initGameMsg() {
-		// for now, show a temporary msg, to setup the page... the actual message selection is todo..
 		const msg = getDeployFleetMessage(this.#playerData)
 		return initP(getCssClass("msgP"), msg)
 	}

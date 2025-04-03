@@ -27,4 +27,5 @@ export const pubSubTokensUi = {
 		`ui: HIDE DEPLOYED FLEET ON ${player.name} GAMEBOARD`,
 	updateDeployedFleetShown: (player) =>
 		`ui: UPDATE DEPLOYED FLEET ON ${player.name} GAMEBOARD`,
+	setGameStatusMsg: "SET THE GAME STATUS MESSAGE",
 }

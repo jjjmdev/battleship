@@ -84,8 +84,16 @@ export default class GameViewDom {
 	}
 
 	#initGameMsg() {
-		const msg = "A message to show game status"
-		return initP(getCssClass("msgP"), msg)
+		const msg = "..."
+		const p = initP(getCssClass("msgP"), msg)
+
+		PubSub.subscribe(
+			pubSubTokensUi.setGameStatusMsg,
+			(token, gameStatusMsg) => {
+				p.textContent = gameStatusMsg
+			}
+		)
+		return p
 	}
 
 	#initToggleFleetBtn() {

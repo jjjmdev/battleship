@@ -4,6 +4,7 @@ import PubSub from "pubsub-js"
 import { randomInt } from "../utils/math.js"
 import { pubSubTokens, pubSubTokensUi, pubSubTopicUi } from "../pubSubTokens.js"
 import { aiMoveDelay, endGameDelay } from "../delays.js"
+import { getFirstPlayerMessage } from "../messages.js"
 
 export default class GameController {
 	#player1
@@ -131,6 +132,12 @@ export default class GameController {
 
 		this.#initCurrentPlayer()
 		this.#consoleLogMessage("startGame")
+		const statusMsg = getFirstPlayerMessage(
+			this.#current.name,
+			this.#versusAi,
+			this.#isAIPlayer()
+		)
+		PubSub.publish(pubSubTokensUi.setGameStatusMsg, statusMsg)
 
 		// Continue playing until someone wins, or
 		// no more moves are allowed
