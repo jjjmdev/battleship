@@ -7,7 +7,7 @@ export const waitDomDelay = 60 // ms, just to ensure the dom is updated
 
 // The artificial waiting in which the AI opponent deploys it fleet
 // eg., you might want to show a message in the UI
-export const aiDeployFleetDelay = 1000 // ms
+export const aiDeployFleetDelay = 2000 // ms
 
 // The artificial waiting in which the AI opponent makes an attack
 // eg., you might want to use this to make it appear as if the AI is thinking of the next move to do

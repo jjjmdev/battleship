@@ -27,9 +27,17 @@ export default function initWebpage() {
 	renderHomeViewDom()
 }
 
-function renderDeployFleetViewDom(token, { player, isAi }) {
+function renderDeployFleetViewDom(
+	token,
+	{ player, isAi, isPlayer1, versusAi }
+) {
 	console.log(`${token} - ${player.name} ${isAi ? "(AI)" : ""}`)
-	const deployFleetViewDom = new DeployFleetViewDom(player, isAi)
+	const deployFleetViewDom = new DeployFleetViewDom(
+		player,
+		isAi,
+		isPlayer1,
+		versusAi
+	)
 	resetContent(container, deployFleetViewDom.div)
 }
 
